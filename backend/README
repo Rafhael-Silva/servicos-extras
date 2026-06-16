@@ -1,0 +1,118 @@
+# Servicos Extras - Backend
+
+Backend do projeto Servicos Extras, implementado como API REST baseada em microserviços.  
+Responsável por autenticação, gerenciamento de usuários, vagas de trabalho, processos seletivos, avaliações técnicas, pagamentos e roteamento via API Gateway.
+
+---
+
+## Microserviços
+
+### auth-service (Concluído)
+
+- Autenticação, registro, login, controle de tokens, autorização básica.
+- Não armazena dados detalhados dos usuários.
+
+#### Funcionalidades implementadas:
+
+- Registro de usuários
+- Verificação de e-mail
+- Login com autenticação em duas etapas
+- Autenticação com JWT (Access Token e Refresh Token)
+- Logout
+- Recuperação de senha
+- Alteração de senha
+- Consulta de perfil
+- Testes unitários
+- Testes de integração
+
+#### Cobertura de testes:
+
+- Statements: 99.01%
+- Branches: 94.71%
+- Functions: 97.77%
+- Lines: 99.33%
+
+### user-service (Em desenvolvimento)
+
+- Gerencia dados e perfis dos usuários (candidatos e recrutadores).
+- Armazena informações pessoais e perfil do usuário.
+
+### job-service (Não iniciado)
+
+- Criação e gerenciamento de vagas ou trabalhos disponíveis.
+- Não lida diretamente com dados pessoais.
+
+### selection-service (Não iniciado)
+
+- Gerencia processos seletivos, triagem, status da seleção e integração com avaliações técnicas.
+- Não armazena dados cadastrais.
+
+### evaluation-service (Não iniciado)
+
+- Avaliações técnicas, feedbacks.
+- Focado exclusivamente em avaliações.
+
+### payment-service (Não iniciado)
+
+- Processa pagamentos e transações financeiras.
+- Não armazena dados pessoais.
+
+### gateway (Não iniciado)
+
+- API Gateway responsável por rotear requisições para os microserviços.
+- Controla autenticação básica, rate limiting e logs.
+- Não contém lógica de negócio.
+
+---
+
+## Tecnologias utilizadas
+
+### Linguagem e framework
+
+- Node.js
+- Express
+
+### Banco de dados
+
+- PostgreSQL
+- Prisma ORM
+
+### Autenticação e segurança
+
+- JWT (Access Token e Refresh Token)
+- HTTP-only cookies
+- Bcrypt (hash de senhas)
+- Node.js Crypto (hash de tokens e códigos de verificação)
+- Helmet (segurança de headers HTTP)
+- Express-rate-limit (proteção contra brute force e DDOS)
+- CORS (controle de acesso entre domínios)
+
+### Validação de dados
+
+- Joi
+
+### HTTP e integração entre serviços
+
+- Axios (requisições HTTP entre microserviços)
+- http-proxy-middleware (proxy de requisições, útil no gateway)
+
+### Serviços externos
+
+- Serviços SMTP (envio de emails)
+- Nodemailer (integração com SMTP para envio de emails)
+
+### Logs e monitoramento
+
+- Morgan
+
+### Automação e tarefas agendadas
+
+- Node-cron (execução de tarefas agendadas)
+
+### Testes e desenvolvimento
+
+- Jest (testes unitários e de integração)
+- Supertest (testes de rotas HTTP)
+- Nodemon (desenvolvimento com auto-reload)
+
+---

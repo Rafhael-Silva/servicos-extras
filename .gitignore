@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.test
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# Windows
+Thumbs.db

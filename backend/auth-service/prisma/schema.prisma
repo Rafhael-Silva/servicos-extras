@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -- Enums --
+enum UserRole {
+  CANDIDATO
+  RECRUTADOR
+  ADMIN
+}
+
+enum VerificationType {
+  EMAIL_VERIFICATION
+  LOGIN
+  PASSWORD_RESET
+}
+
+// -- User Model --
+model User {
+  id            String    @id @default(uuid())
+  name          String    @db.VarChar(255)
+  email         String    @unique @db.VarChar(255)
+  cpf           String?   @unique @db.VarChar(11)
+  cnpj          String?   @unique @db.VarChar(14)
+  passwordHash  String    @db.VarChar(255)
+  role          UserRole
+  emailVerified Boolean   @default(false)
+  isBlocked     Boolean   @default(false)
+  blockExpires  DateTime?
+  loginAttempts Int       @default(0)
+  lastLoginAt   DateTime?
+  termsAccepted Boolean
+  birthDate     DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  refreshTokens     RefreshToken[]
+  verificationCodes VerificationCode[]
+
+  @@index([role])
+}
+
+// -- Refresh Token Model --
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique @db.VarChar(255)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// -- Revoked Token Model --
+model RevokedToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique @db.VarChar(255)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+// -- Verification Code Model --
+model VerificationCode {
+  id        String           @id @default(uuid())
+  userId    String
+  codeHash  String           @db.VarChar(255)
+  type      VerificationType
+  expiresAt DateTime
+  attempts  Int              @default(0)
+  used      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([type])
+}

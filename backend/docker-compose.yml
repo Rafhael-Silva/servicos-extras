@@ -1,0 +1,30 @@
+services:
+  auth-db:
+    image: postgres:15
+    container_name: postgres_auth_service
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+
+  user-db:
+    image: postgres:15
+    container_name: postgres_user_service
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  auth_postgres_data:
+  user_postgres_data:
