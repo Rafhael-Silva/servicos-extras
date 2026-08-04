@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-//Payload esperado (id e role)
+//Payload esperado (id e accountType)
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: '15m',

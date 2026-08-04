@@ -1,9 +1,7 @@
-const sendEmail = require("./sendEmail");
+const { sendEmail } = require('../config/mail');
 
 const sendWelcomeEmail = async (name, email) => {
-  if (process.env.NODE_ENV === "test") return;
-
-  const subject = "Bem-vindo à nossa plataforma!";
+  const subject = 'Bem-vindo à nossa plataforma!';
 
   const text = `Olá ${name},
 
@@ -26,4 +24,21 @@ const sendWelcomeEmail = async (name, email) => {
   await sendEmail(email, subject, text, html);
 };
 
-module.exports = sendWelcomeEmail;
+const sendVerificationCode = async (email, code) => {
+  const subject = 'Seu código de verificação';
+
+  const text = `Seu código de verificação é: ${code}`;
+
+  const html = `
+        <p>Você está recebendo um código de verificação.</p>
+        <p><strong>Código: ${code}</strong></p>
+        <p>Este código expira em 10 minutos.</p>
+      `;
+
+  await sendEmail(email, subject, text, html);
+};
+
+module.exports = {
+  sendWelcomeEmail,
+  sendVerificationCode,
+};

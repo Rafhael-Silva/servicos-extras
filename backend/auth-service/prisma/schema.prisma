@@ -12,10 +12,9 @@ datasource db {
 }
 
 // -- Enums --
-enum UserRole {
-  CANDIDATO
-  RECRUTADOR
-  ADMIN
+enum AccountType {
+  PERSON
+  COMPANY
 }
 
 enum VerificationType {
@@ -27,12 +26,15 @@ enum VerificationType {
 // -- User Model --
 model User {
   id            String    @id @default(uuid())
+  
+  // Para COMPANY representa o responsável pelo cadastro.
   name          String    @db.VarChar(255)
+
   email         String    @unique @db.VarChar(255)
   cpf           String?   @unique @db.VarChar(11)
   cnpj          String?   @unique @db.VarChar(14)
   passwordHash  String    @db.VarChar(255)
-  role          UserRole
+  accountType   AccountType
   emailVerified Boolean   @default(false)
   isBlocked     Boolean   @default(false)
   blockExpires  DateTime?
@@ -45,8 +47,6 @@ model User {
 
   refreshTokens     RefreshToken[]
   verificationCodes VerificationCode[]
-
-  @@index([role])
 }
 
 // -- Refresh Token Model --

@@ -1,14 +1,14 @@
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+}));
+
 const jwt = require('jsonwebtoken');
-const { UserRole, VerificationType } = require('@prisma/client');
+const { AccountType, VerificationType } = require('@prisma/client');
 const {
   generateAccessToken,
   generateRefreshToken,
   generateVerificationToken,
-} = require('../../src/utils/generateToken');
-
-jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn(),
-}));
+} = require('../../../src/utils/generateToken');
 
 describe('utils - generateToken', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('utils - generateToken', () => {
   test('deve gerar accessToken com sucesso.', () => {
     const mockPayload = {
       id: 'user123',
-      role: UserRole.CANDIDATO,
+      accountType: AccountType.PERSON,
     };
     const mockToken = 'accessToken_fake';
     process.env.ACCESS_TOKEN_SECRET = 'secret_fake';

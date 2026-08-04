@@ -13,14 +13,10 @@ const {
   verifyEmailSchema,
 } = require('../utils/validations');
 const {
-  loginLimiter,
-  forgotPasswordLimiter,
-  sendCodeLimiter,
-  verifyUserCodeLimiter,
-  verifyEmailLimiter,
-} = require('../middlewares/rateLimit');
-const authenticateToken = require('../middlewares/authenticateToken');
-const validateSchema = require('../middlewares/validateSchema');
+  authenticateToken,
+  validateSchema,
+  rateLimit,
+} = require('../middlewares');
 
 // Cadastro
 router.post(
@@ -30,7 +26,7 @@ router.post(
 );
 router.post(
   '/verify-email',
-  verifyEmailLimiter,
+  rateLimit.verifyEmailLimiter,
   validateSchema(verifyEmailSchema),
   authController.verifyEmail,
 );
@@ -38,7 +34,7 @@ router.post(
 // Reenvio de código
 router.post(
   '/resend-code',
-  sendCodeLimiter,
+  rateLimit.sendCodeLimiter,
   validateSchema(resendCodeSchema),
   authController.resendCode,
 );
@@ -46,7 +42,7 @@ router.post(
 //Verificação de código
 router.post(
   '/verify-code',
-  verifyUserCodeLimiter,
+  rateLimit.verifyUserCodeLimiter,
   validateSchema(verifyUserCodeSchema),
   authController.verifyUserCode,
 );
@@ -54,13 +50,13 @@ router.post(
 // Login
 router.post(
   '/start-login',
-  loginLimiter,
+  rateLimit.loginLimiter,
   validateSchema(startLoginSchema),
   authController.startLogin,
 );
 router.post(
   '/finalize-login',
-  loginLimiter,
+  rateLimit.loginLimiter,
   validateSchema(finalizeLoginSchema),
   authController.finalizeLogin,
 );
@@ -74,7 +70,7 @@ router.post('/refresh-token', authController.refreshToken);
 // Recuperação de senha
 router.post(
   '/forgot-password',
-  forgotPasswordLimiter,
+  rateLimit.forgotPasswordLimiter,
   validateSchema(forgotPasswordSchema),
   authController.forgotPassword,
 );

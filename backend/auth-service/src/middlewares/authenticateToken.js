@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const prisma = require('../config/prisma');
+const { generateHash } = require('../utils');
+const { revokedTokenRepository, userRepository } = require('../repositories');
 
 const authenticateToken = async (req, res, next) => {
   try {
@@ -16,14 +16,10 @@ const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
-    const accessTokenHash = crypto
-      .createHash('sha256')
-      .update(accessToken)
-      .digest('hex');
+    const accessTokenHash = generateHash(accessToken);
 
-    const revokedToken = await prisma.revokedToken.findUnique({
-      where: { tokenHash: accessTokenHash },
-    });
+    const revokedToken =
+      await revokedTokenRepository.findByTokenHash(accessTokenHash);
 
     if (revokedToken) {
       return res.status(401).json({
@@ -31,13 +27,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      select: {
-        isBlocked: true,
-        blockExpires: true,
-      },
-    });
+    const user = await userRepository.findBlockStatus(decoded.id);
 
     if (!user) {
       return res.status(401).json({
@@ -45,9 +35,10 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    const now = new Date();
-
-    if (user?.isBlocked && user.blockExpires > now) {
+    if (
+      user.isBlocked &&
+      (!user.blockExpires || user.blockExpires > new Date())
+    ) {
       return res.status(403).json({
         message: 'Usuário bloqueado.',
       });
@@ -55,7 +46,7 @@ const authenticateToken = async (req, res, next) => {
 
     req.user = {
       id: decoded.id,
-      role: decoded.role,
+      accountType: decoded.accountType,
     };
 
     return next();
@@ -72,9 +63,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    return res.status(500).json({
-      message: 'Ocorreu um erro inesperado no servidor.',
-    });
+    return next(error);
   }
 };
 

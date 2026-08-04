@@ -1,8 +1,3 @@
-const authenticateToken = require('../../src/middlewares/authenticateToken');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const prisma = require('../../src/config/prisma');
-
 jest.mock('jsonwebtoken', () => {
   const actual = jest.requireActual('jsonwebtoken');
 
@@ -11,27 +6,33 @@ jest.mock('jsonwebtoken', () => {
     verify: jest.fn(),
   };
 });
-jest.mock('crypto');
-jest.mock('../../src/config/prisma', () => ({
-  revokedToken: {
-    findUnique: jest.fn(),
+jest.mock('../../../src/utils', () => ({
+  generateHash: jest.fn(),
+}));
+jest.mock('../../../src/repositories', () => ({
+  revokedTokenRepository: {
+    findByTokenHash: jest.fn(),
   },
-  user: {
-    findUnique: jest.fn(),
+  userRepository: {
+    findBlockStatus: jest.fn(),
   },
 }));
+
+const { authenticateToken } = require('../../../src/middlewares');
+const jwt = require('jsonwebtoken');
+const { generateHash } = require('../../../src/utils');
+const {
+  revokedTokenRepository,
+  userRepository,
+} = require('../../../src/repositories');
+const { AccountType } = require('@prisma/client');
 
 describe('middlewares - authenticateToken', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    crypto.createHash.mockReturnValue({
-      update: jest.fn().mockReturnThis(),
-      digest: jest.fn().mockReturnValue('hash_fake'),
-    });
   });
 
-  test('deve autenticar usuário com sucesso.', async () => {
+  test('deve autenticar o usuário com sucesso.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -41,20 +42,27 @@ describe('middlewares - authenticateToken', () => {
     };
     const mockNext = jest.fn();
     const mockAccessToken = 'token_fake';
+    const mockAccessTokenHash = 'hash-fake';
     const mockDecoded = {
       id: 'user123',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
-    process.env.ACCESS_TOKEN_SECRET = 'secret';
-
-    jwt.verify.mockReturnValue({ id: mockDecoded.id, role: mockDecoded.role });
-
-    prisma.revokedToken.findUnique.mockResolvedValue(null);
-
-    prisma.user.findUnique.mockResolvedValue({
+    const mockUser = {
       isBlocked: false,
       blockExpires: null,
+    };
+    process.env.ACCESS_TOKEN_SECRET = 'access-secret';
+
+    jwt.verify.mockReturnValue({
+      id: mockDecoded.id,
+      accountType: mockDecoded.accountType,
     });
+
+    generateHash.mockReturnValue(mockAccessTokenHash);
+
+    revokedTokenRepository.findByTokenHash.mockResolvedValue(null);
+
+    userRepository.findBlockStatus.mockResolvedValue(mockUser);
 
     await authenticateToken(mockReq, mockRes, mockNext);
 
@@ -62,25 +70,20 @@ describe('middlewares - authenticateToken', () => {
       mockAccessToken,
       process.env.ACCESS_TOKEN_SECRET,
     );
-    expect(prisma.revokedToken.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: 'hash_fake' },
-    });
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: mockDecoded.id },
-      select: {
-        isBlocked: true,
-        blockExpires: true,
-      },
-    });
+    expect(generateHash).toHaveBeenCalledWith(mockAccessToken);
+    expect(revokedTokenRepository.findByTokenHash).toHaveBeenCalledWith(
+      mockAccessTokenHash,
+    );
+    expect(userRepository.findBlockStatus).toHaveBeenCalledWith(mockDecoded.id);
     expect(mockReq.user).toEqual({
       id: mockDecoded.id,
-      role: mockDecoded.role,
+      accountType: mockDecoded.accountType,
     });
     expect(mockNext).toHaveBeenCalled();
     expect(mockRes.status).not.toHaveBeenCalled();
     expect(mockRes.json).not.toHaveBeenCalled();
   });
-  test('deve retornar erro caso token esteja ausente.', async () => {
+  test('deve gerar erro caso o token não seja informado.', async () => {
     const mockReq = {
       headers: {},
     };
@@ -99,7 +102,7 @@ describe('middlewares - authenticateToken', () => {
     expect(jwt.verify).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
-  test('deve retornar erro de token expirado.', async () => {
+  test('deve gerar erro caso o token esteja expirado.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -123,10 +126,10 @@ describe('middlewares - authenticateToken', () => {
     );
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Token expirado.' });
-    expect(crypto.createHash).not.toHaveBeenCalled();
+    expect(generateHash).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
-  test('deve retornar erro de token inválido.', async () => {
+  test('deve gerar erro caso o token seja inválido.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -139,7 +142,7 @@ describe('middlewares - authenticateToken', () => {
     process.env.ACCESS_TOKEN_SECRET = 'secret';
 
     jwt.verify.mockImplementation(() => {
-      throw new jwt.JsonWebTokenError('jwt invalid');
+      throw new jwt.JsonWebTokenError('jwt invalid.');
     });
 
     await authenticateToken(mockReq, mockRes, mockNext);
@@ -150,10 +153,10 @@ describe('middlewares - authenticateToken', () => {
     );
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Token inválido.' });
-    expect(crypto.createHash).not.toHaveBeenCalled();
+    expect(generateHash).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
-  test('deve retornar erro caso token esteja revogado.', async () => {
+  test('deve gerar erro caso o token esteja revogado.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -163,15 +166,21 @@ describe('middlewares - authenticateToken', () => {
     };
     const mockNext = jest.fn();
     const mockAccessToken = 'token_fake';
+    const mockAccessTokenHash = 'hash-fake';
     const mockDecoded = {
       id: 'user123',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
-    process.env.ACCESS_TOKEN_SECRET = 'secret';
+    process.env.ACCESS_TOKEN_SECRET = 'access-secret';
 
-    jwt.verify.mockReturnValue({ id: mockDecoded.id, role: mockDecoded.role });
+    jwt.verify.mockReturnValue({
+      id: mockDecoded.id,
+      accountType: mockDecoded.accountType,
+    });
 
-    prisma.revokedToken.findUnique.mockResolvedValue({});
+    generateHash.mockReturnValue(mockAccessTokenHash);
+
+    revokedTokenRepository.findByTokenHash.mockResolvedValue('revoked-token');
 
     await authenticateToken(mockReq, mockRes, mockNext);
 
@@ -179,17 +188,18 @@ describe('middlewares - authenticateToken', () => {
       mockAccessToken,
       process.env.ACCESS_TOKEN_SECRET,
     );
-    expect(prisma.revokedToken.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: 'hash_fake' },
-    });
+    expect(generateHash).toHaveBeenCalledWith(mockAccessToken);
+    expect(revokedTokenRepository.findByTokenHash).toHaveBeenCalledWith(
+      mockAccessTokenHash,
+    );
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({
       message: 'Token revogado. Faça login novamente.',
     });
-    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(userRepository.findBlockStatus).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
-  test('deve retornar erro caso usuário não seja encontrado.', async () => {
+  test('deve gerar erro caso o usuário não seja encontrado.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -199,17 +209,23 @@ describe('middlewares - authenticateToken', () => {
     };
     const mockNext = jest.fn();
     const mockAccessToken = 'token_fake';
+    const mockAccessTokenHash = 'fake-hash';
     const mockDecoded = {
       id: 'user123',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
-    process.env.ACCESS_TOKEN_SECRET = 'secret';
+    process.env.ACCESS_TOKEN_SECRET = 'access-secret';
 
-    jwt.verify.mockReturnValue({ id: mockDecoded.id, role: mockDecoded.role });
+    jwt.verify.mockReturnValue({
+      id: mockDecoded.id,
+      accountType: mockDecoded.accountType,
+    });
 
-    prisma.revokedToken.findUnique.mockResolvedValue(null);
+    generateHash.mockReturnValue(mockAccessTokenHash);
 
-    prisma.user.findUnique.mockResolvedValue(null);
+    revokedTokenRepository.findByTokenHash.mockResolvedValue(null);
+
+    userRepository.findBlockStatus.mockResolvedValue(null);
 
     await authenticateToken(mockReq, mockRes, mockNext);
 
@@ -217,23 +233,18 @@ describe('middlewares - authenticateToken', () => {
       mockAccessToken,
       process.env.ACCESS_TOKEN_SECRET,
     );
-    expect(prisma.revokedToken.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: 'hash_fake' },
-    });
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: mockDecoded.id },
-      select: {
-        isBlocked: true,
-        blockExpires: true,
-      },
-    });
+    expect(generateHash).toHaveBeenCalledWith(mockAccessToken);
+    expect(revokedTokenRepository.findByTokenHash).toHaveBeenCalledWith(
+      mockAccessTokenHash,
+    );
+    expect(userRepository.findBlockStatus).toHaveBeenCalledWith(mockDecoded.id);
     expect(mockNext).not.toHaveBeenCalled();
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({
       message: 'Usuário não encontrado.',
     });
   });
-  test('deve retornar erro caso usuário esteja bloqueado.', async () => {
+  test('deve gerar erro caso o usuário esteja bloqueado.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -243,22 +254,29 @@ describe('middlewares - authenticateToken', () => {
     };
     const mockNext = jest.fn();
     const mockAccessToken = 'token_fake';
+    const mockAccessTokenHash = 'hash-fake';
     const mockDecoded = {
       id: 'user123',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
-    process.env.ACCESS_TOKEN_SECRET = 'secret';
     const mockDate = new Date();
-    mockDate.setDate(mockDate.getDate() + 7);
-
-    jwt.verify.mockReturnValue({ id: mockDecoded.id, role: mockDecoded.role });
-
-    prisma.revokedToken.findUnique.mockResolvedValue(null);
-
-    prisma.user.findUnique.mockResolvedValue({
+    mockDate.setDate(mockDate.getDate() + 1);
+    const mockUser = {
       isBlocked: true,
       blockExpires: mockDate,
+    };
+    process.env.ACCESS_TOKEN_SECRET = 'access-secret';
+
+    jwt.verify.mockReturnValue({
+      id: mockDecoded.id,
+      accountType: mockDecoded.accountType,
     });
+
+    generateHash.mockReturnValue(mockAccessTokenHash);
+
+    revokedTokenRepository.findByTokenHash.mockResolvedValue(null);
+
+    userRepository.findBlockStatus.mockResolvedValue(mockUser);
 
     await authenticateToken(mockReq, mockRes, mockNext);
 
@@ -266,23 +284,18 @@ describe('middlewares - authenticateToken', () => {
       mockAccessToken,
       process.env.ACCESS_TOKEN_SECRET,
     );
-    expect(prisma.revokedToken.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: 'hash_fake' },
-    });
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: mockDecoded.id },
-      select: {
-        isBlocked: true,
-        blockExpires: true,
-      },
-    });
+    expect(generateHash).toHaveBeenCalledWith(mockAccessToken);
+    expect(revokedTokenRepository.findByTokenHash).toHaveBeenCalledWith(
+      mockAccessTokenHash,
+    );
+    expect(userRepository.findBlockStatus).toHaveBeenCalledWith(mockDecoded.id);
     expect(mockNext).not.toHaveBeenCalled();
     expect(mockRes.status).toHaveBeenCalledWith(403);
     expect(mockRes.json).toHaveBeenCalledWith({
       message: 'Usuário bloqueado.',
     });
   });
-  test('deve retornar erro 500 em caso de falha interna inesperada.', async () => {
+  test('deve enviar erro ao middleware de error.', async () => {
     const mockReq = {
       headers: { authorization: 'Bearer token_fake' },
     };
@@ -292,15 +305,22 @@ describe('middlewares - authenticateToken', () => {
     };
     const mockNext = jest.fn();
     const mockAccessToken = 'token_fake';
+    const mockAccessTokenHash = 'hash-fake';
     const mockDecoded = {
       id: 'user123',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
+    const error = new Error('Erro ao buscar token.');
     process.env.ACCESS_TOKEN_SECRET = 'secret';
 
-    jwt.verify.mockReturnValue({ id: mockDecoded.id, role: mockDecoded.role });
+    generateHash.mockReturnValue(mockAccessTokenHash);
 
-    prisma.revokedToken.findUnique.mockRejectedValue(new Error('Fail'));
+    jwt.verify.mockReturnValue({
+      id: mockDecoded.id,
+      accountType: mockDecoded.accountType,
+    });
+
+    revokedTokenRepository.findByTokenHash.mockRejectedValue(error);
 
     await authenticateToken(mockReq, mockRes, mockNext);
 
@@ -308,14 +328,13 @@ describe('middlewares - authenticateToken', () => {
       mockAccessToken,
       process.env.ACCESS_TOKEN_SECRET,
     );
-    expect(prisma.revokedToken.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: 'hash_fake' },
-    });
-    expect(mockRes.status).toHaveBeenCalledWith(500);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      message: 'Ocorreu um erro inesperado no servidor.',
-    });
-    expect(prisma.user.findUnique).not.toHaveBeenCalled();
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(generateHash).toHaveBeenCalledWith(mockAccessToken);
+    expect(revokedTokenRepository.findByTokenHash).toHaveBeenCalledWith(
+      mockAccessTokenHash,
+    );
+    expect(userRepository.findBlockStatus).not.toHaveBeenCalled();
+    expect(mockNext).toHaveBeenCalledWith(error);
+    expect(mockRes.status).not.toHaveBeenCalled();
+    expect(mockRes.json).not.toHaveBeenCalled();
   });
 });

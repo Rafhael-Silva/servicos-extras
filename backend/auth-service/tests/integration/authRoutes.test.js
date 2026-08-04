@@ -1,20 +1,20 @@
+jest.mock('../../src/config/mail', () => ({
+  sendEmail: jest.fn(),
+}));
+
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('../../src/config/prisma');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const sendEmail = require('../../src/utils/sendEmail');
-const sendWelcomeEmail = require('../../src/utils/sendWelcomeEmail');
+const { sendEmail } = require('../../src/config/mail');
 const {
   generateVerificationToken,
   generateRefreshToken,
   generateAccessToken,
 } = require('../../src/utils/generateToken');
-const { VerificationType } = require('@prisma/client');
-const { id } = require('../../src/utils/validations/registerUserSchema');
-
-jest.mock('../../src/utils/sendEmail', () => jest.fn());
-jest.mock('../../src/utils/sendWelcomeEmail', () => jest.fn());
+const { VerificationType, AccountType } = require('@prisma/client');
+const AUTH = require('../../src/constants/auth');
 
 const userTest = (overrides = {}) => ({
   name: 'João Carlos',
@@ -22,7 +22,7 @@ const userTest = (overrides = {}) => ({
   password: 'senha123',
   confirmPassword: 'senha123',
   cpf: '12345678900',
-  role: 'CANDIDATO',
+  accountType: AccountType.PERSON,
   birthDate: '2005-06-15',
   termsAccepted: true,
   ...overrides,
@@ -41,7 +41,7 @@ describe('authRoutes - POST/register', () => {
     await prisma.$disconnect();
   });
 
-  test('deve registrar um usuário candidato com sucesso.', async () => {
+  test('deve registrar um usuário PERSON com sucesso.', async () => {
     const newUser = userTest();
 
     const response = await request(app)
@@ -101,7 +101,7 @@ describe('authRoutes - POST/register', () => {
   });
   test('deve retornar 409 quando o CNPJ já estiver cadastrado.', async () => {
     const firstUser = userTest({
-      role: 'RECRUTADOR',
+      accountType: AccountType.COMPANY,
       cnpj: '12345678901234',
       cpf: undefined,
     });
@@ -110,7 +110,7 @@ describe('authRoutes - POST/register', () => {
 
     const secondUser = userTest({
       email: 'outro@email.com',
-      role: 'RECRUTADOR',
+      accountType: AccountType.COMPANY,
       cnpj: '12345678901234',
       cpf: undefined,
     });
@@ -122,9 +122,9 @@ describe('authRoutes - POST/register', () => {
     expect(response.status).toBe(409);
     expect(response.body).toEqual({ message: 'CNPJ já cadastrado.' });
   });
-  test('deve retornar 400 quando recrutador não informar CPF ou CNPJ.', async () => {
+  test('deve retornar 400 quando COMPANY não informar CNPJ.', async () => {
     const newUser = userTest({
-      role: 'RECRUTADOR',
+      accountType: AccountType.COMPANY,
       cnpj: undefined,
       cpf: undefined,
     });
@@ -135,15 +135,14 @@ describe('authRoutes - POST/register', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['Recrutador deve fornecer CPF ou CNPJ.'],
+      errors: ['CNPJ é obrigatório para empresas.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
   });
-  test('deve retornar 400 quando recrutador informar CPF e CNPJ simultaneamente.', async () => {
+  test('deve retornar 400 quando COMPANY informar CPF.', async () => {
     const newUser = userTest({
-      role: 'RECRUTADOR',
-      cnpj: '12345678901234',
+      accountType: AccountType.COMPANY,
     });
 
     const response = await request(app)
@@ -152,12 +151,15 @@ describe('authRoutes - POST/register', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['Recrutador deve fornecer apenas CPF ou CNPJ, não ambos.'],
+      errors: [
+        'CPF não é permitido para empresas.',
+        'CNPJ é obrigatório para empresas.',
+      ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
   });
-  test('deve retornar 400 quando candidato informar CNPJ.', async () => {
+  test('deve retornar 400 quando PERSON informar CNPJ.', async () => {
     const newUser = userTest({
       cnpj: '12345678901234',
       cpf: undefined,
@@ -170,8 +172,8 @@ describe('authRoutes - POST/register', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       errors: [
-        'CPF é obrigatório para candidatos.',
-        'CNPJ não é permitido para candidatos.',
+        'CPF é obrigatório para pessoas físicas.',
+        'CNPJ não é permitido para pessoas físicas.',
       ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
@@ -226,9 +228,9 @@ describe('authRoutes - POST/register', () => {
       type: 'ValidationError',
     });
   });
-  test('deve retornar 400 quando role for inválido.', async () => {
+  test('deve retornar 400 quando accountType for inválido.', async () => {
     const newUser = userTest({
-      role: 'ADMIN',
+      accountType: 'CANDIDATO',
     });
 
     const response = await request(app)
@@ -237,7 +239,10 @@ describe('authRoutes - POST/register', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['O tipo de usuário é inválido.'],
+      errors: [
+        'O tipo da conta é inválido.',
+        'CPF não é permitido para empresas.',
+      ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -250,7 +255,7 @@ describe('authRoutes - POST/verify-email', () => {
 
     await prisma.user.deleteMany();
 
-    sendWelcomeEmail.mockResolvedValue(true);
+    sendEmail.mockResolvedValue(true);
   });
 
   afterAll(async () => {
@@ -264,7 +269,7 @@ describe('authRoutes - POST/verify-email', () => {
         email: 'joao@carlos.com',
         passwordHash: 'hash_fake',
         cpf: '12345678900',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2005-06-15'),
         termsAccepted: true,
         emailVerified: false,
@@ -284,21 +289,25 @@ describe('authRoutes - POST/verify-email', () => {
       where: { id: newUser.id },
     });
 
+    const refreshToken = await prisma.refreshToken.findFirst({
+      where: { userId: newUser.id },
+    });
+
     expect(response.status).toBe(200);
     expect(response.body.message).toBe(
       'E-mail verificado e login realizado com sucesso.',
     );
     expect(response.body.accessToken).toBeDefined();
-    expect(response.body.refreshToken).toBeDefined();
     expect(response.body.user).toMatchObject({
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
-      role: newUser.role,
+      accountType: newUser.accountType,
     });
     expect(response.headers['set-cookie']).toBeDefined();
     expect(response.headers['set-cookie'][0]).toContain('refreshToken=');
     expect(updatedUser.emailVerified).toBe(true);
+    expect(refreshToken).not.toBeNull();
   });
   test('deve retornar 400 quando token não for informado.', async () => {
     const response = await request(app).post('/api/auth/verify-email').send({});
@@ -327,7 +336,7 @@ describe('authRoutes - POST/verify-email', () => {
         email: 'joao@carlos.com',
         passwordHash: 'hash_fake',
         cpf: '12345678900',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2005-06-15'),
         termsAccepted: true,
         emailVerified: false,
@@ -370,7 +379,7 @@ describe('authRoutes - POST/resend-code', () => {
         email: 'joao@example.com',
         cpf: '12345678900',
         passwordHash: 'hash_fake',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         emailVerified: true,
         birthDate: new Date('2000-05-15'),
         termsAccepted: true,
@@ -423,7 +432,9 @@ describe('authRoutes - POST/verify-code', () => {
     const code = '123456';
     const codeHash = crypto.createHash('sha256').update(code).digest('hex');
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + 10 * 60 * 1000);
+    const expiresAt = new Date(
+      now.getTime() + AUTH.VERIFICATION_CODE_EXPIRES_MS,
+    );
 
     const user = await prisma.user.create({
       data: {
@@ -431,7 +442,7 @@ describe('authRoutes - POST/verify-code', () => {
         email: 'joao@carlos.com',
         passwordHash: 'hash_fake',
         cpf: '12345678900',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2005-06-15'),
         termsAccepted: true,
         emailVerified: false,
@@ -510,7 +521,7 @@ describe('authRoutes - POST/start-login', () => {
         cpf: '12345678900',
         passwordHash,
         emailVerified: true,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-05-19'),
         isBlocked: false,
         loginAttempts: 0,
@@ -527,10 +538,6 @@ describe('authRoutes - POST/start-login', () => {
     expect(response.body.message).toEqual(
       'Código enviado com sucesso, verifique seu e-mail.',
     );
-    expect(response.body.id).toBe(user.id);
-    expect(response.body.name).toBe(user.name);
-    expect(response.body.email).toBe(user.email);
-    expect(response.body.role).toBe(user.role);
   });
   test('deve retornar 400 quando algum parâmetro não for informado.', async () => {
     const response = await request(app)
@@ -560,7 +567,7 @@ describe('authRoutes - POST/start-login', () => {
         cpf: '12345678900',
         passwordHash: 'hash_fake',
         emailVerified: false,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-05-19'),
         isBlocked: false,
         loginAttempts: 0,
@@ -574,7 +581,9 @@ describe('authRoutes - POST/start-login', () => {
       .send({ email: user.email, password: 'senhaFake' });
 
     expect(response.status).toBe(403);
-    expect(response.body).toEqual({ message: 'Credenciais inválidas.' });
+    expect(response.body).toEqual({
+      message: 'Verifique seu e-mail antes de realizar o login.',
+    });
   });
 });
 
@@ -595,7 +604,7 @@ describe('authRoutes - POST/finalize-login', () => {
         cpf: '12345678900',
         passwordHash: 'hash_fake',
         emailVerified: true,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-05-19'),
         isBlocked: false,
         loginAttempts: 0,
@@ -616,11 +625,10 @@ describe('authRoutes - POST/finalize-login', () => {
     expect(response.status).toBe(200);
     expect(response.body.message).toEqual('Login realizado com sucesso.');
     expect(response.body.accessToken).toBeDefined();
-    expect(response.body.refreshToken).toBeDefined();
     expect(response.body.user.id).toBe(user.id);
     expect(response.body.user.name).toBe(user.name);
     expect(response.body.user.email).toBe(user.email);
-    expect(response.body.user.role).toBe(user.role);
+    expect(response.body.user.accountType).toBe(user.accountType);
     expect(response.headers['set-cookie']).toBeDefined();
     expect(response.headers['set-cookie'][0]).toContain('refreshToken=');
   });
@@ -682,7 +690,7 @@ describe('authRoutes - POST/logout', () => {
         cpf: '12345678900',
         passwordHash,
         emailVerified: true,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-05-19'),
         isBlocked: false,
         loginAttempts: 0,
@@ -693,7 +701,7 @@ describe('authRoutes - POST/logout', () => {
 
     const accessToken = generateAccessToken({
       id: user.id,
-      role: user.role,
+      accountType: user.accountType,
     });
     const refreshToken = generateRefreshToken({ id: user.id });
     const refreshTokenHash = crypto
@@ -702,7 +710,7 @@ describe('authRoutes - POST/logout', () => {
       .digest('hex');
 
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setDate(expiresAt.getDate() + AUTH.REFRESH_TOKEN_EXPIRES_DAYS);
 
     await prisma.refreshToken.create({
       data: {
@@ -766,7 +774,7 @@ describe('authRoutes - POST/refresh-token', () => {
       data: {
         name: 'João',
         email: 'joao@example.com',
-        role: 'RECRUTADOR',
+        accountType: AccountType.COMPANY,
         passwordHash,
         cnpj: '12345678901234',
         birthDate: new Date('2000-06-21'),
@@ -784,7 +792,7 @@ describe('authRoutes - POST/refresh-token', () => {
       .update(refreshToken)
       .digest('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setDate(expiresAt.getDate() + AUTH.REFRESH_TOKEN_EXPIRES_DAYS);
 
     await prisma.refreshToken.create({
       data: {
@@ -832,7 +840,7 @@ describe('authRoutes - POST/refresh-token', () => {
         name: 'João',
         email: 'joao@example.com',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         cpf: '12345678901',
         birthDate: new Date('2000-08-21'),
         emailVerified: true,
@@ -892,7 +900,7 @@ describe('authRoutes - POST/forgot-password', () => {
         name: 'João',
         email: 'joao@example.com',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         cpf: '12345678901',
         birthDate: new Date('2001-02-25'),
         emailVerified: true,
@@ -956,7 +964,7 @@ describe('authRoutes - POST/reset-password', () => {
         name: 'João',
         email: 'joao@example.com',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         cpf: '12345678901',
         birthDate: new Date('2000-09-12'),
         emailVerified: true,
@@ -1026,7 +1034,7 @@ describe('authRoutes - POST/reset-password', () => {
         name: 'João',
         email: 'joao@example.com',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         cpf: '12345678901',
         birthDate: new Date('2000-09-12'),
         emailVerified: true,
@@ -1072,7 +1080,7 @@ describe('authRoutes - PATCH/change-password', () => {
         email: 'jaoao@example.com',
         cpf: '12345678901',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-12-23'),
         emailVerified: true,
         isBlocked: false,
@@ -1082,7 +1090,10 @@ describe('authRoutes - PATCH/change-password', () => {
       },
     });
 
-    const accessToken = generateAccessToken({ id: user.id, role: user.role });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      accountType: user.accountType,
+    });
     const refreshToken = generateRefreshToken({ id: user.id });
     const tokenHash = crypto
       .createHash('sha256')
@@ -1094,7 +1105,7 @@ describe('authRoutes - PATCH/change-password', () => {
       data: {
         userId: user.id,
         tokenHash,
-        expiresAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(now.getTime() + AUTH.REFRESH_TOKEN_EXPIRES_DAYS),
       },
     });
 
@@ -1147,7 +1158,7 @@ describe('authRoutes - PATCH/change-password', () => {
         email: 'jaoao@example.com',
         cpf: '12345678901',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-12-23'),
         emailVerified: true,
         isBlocked: false,
@@ -1157,7 +1168,10 @@ describe('authRoutes - PATCH/change-password', () => {
       },
     });
 
-    const accessToken = generateAccessToken({ id: user.id, role: user.role });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      accountType: user.accountType,
+    });
     const response = await request(app)
       .patch('/api/auth/change-password')
       .set('authorization', `Bearer ${accessToken}`)
@@ -1174,7 +1188,7 @@ describe('authRoutes - PATCH/change-password', () => {
       type: 'ValidationError',
     });
   });
-  test('deve retornar 401 quando atual senha estiver incorreta.', async () => {
+  test('deve retornar 401 quando a senha atual estiver incorreta.', async () => {
     const currentPassword = 'senha123';
     const passwordHash = await bcrypt.hash(currentPassword, 10);
 
@@ -1184,7 +1198,7 @@ describe('authRoutes - PATCH/change-password', () => {
         email: 'jaoao@example.com',
         cpf: '12345678901',
         passwordHash,
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2000-12-23'),
         emailVerified: true,
         isBlocked: false,
@@ -1194,7 +1208,10 @@ describe('authRoutes - PATCH/change-password', () => {
       },
     });
 
-    const accessToken = generateAccessToken({ id: user.id, role: user.role });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      accountType: user.accountType,
+    });
     const response = await request(app)
       .patch('/api/auth/change-password')
       .set('authorization', `Bearer ${accessToken}`)
@@ -1230,7 +1247,7 @@ describe('authRoutes - GET/me', () => {
         email: 'joao@example.com',
         passwordHash,
         cpf: '12345678901',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
         birthDate: new Date('2004-09-29'),
         emailVerified: true,
         isBlocked: false,
@@ -1240,7 +1257,10 @@ describe('authRoutes - GET/me', () => {
       },
     });
 
-    const accessToken = generateAccessToken({ id: user.id, role: user.role });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      accountType: user.accountType,
+    });
 
     const response = await request(app)
       .get('/api/auth/me')
@@ -1251,9 +1271,8 @@ describe('authRoutes - GET/me', () => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      age: expect.any(Number),
-      cpf: user.cpf,
+      accountType: user.accountType,
+      userAge: expect.any(Number),
     });
   });
   test('deve retornar 401 quando token for inválido.', async () => {

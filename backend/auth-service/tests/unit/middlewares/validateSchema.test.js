@@ -1,4 +1,4 @@
-const validateSchema = require('../../src/middlewares/validateSchema');
+const { validateSchema } = require('../../../src/middlewares');
 
 describe('middlewares - validateSchema', () => {
   beforeEach(() => {

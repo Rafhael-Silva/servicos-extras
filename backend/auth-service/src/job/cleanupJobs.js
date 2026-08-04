@@ -1,17 +1,14 @@
-const prisma = require('../config/prisma');
-const logger = require('../config/logger');
+const {
+  revokedTokenRepository,
+  refreshTokenRepository,
+  verificationCodeRepository,
+} = require('../repositories');
+const { logger } = require('../config');
 
 const cleanupRevokedTokens = async () => {
   try {
-    const currentDate = new Date();
-    const deleteTokens = await prisma.revokedToken.deleteMany({
-      where: {
-        expiresAt: {
-          lt: currentDate,
-        },
-      },
-    });
-    logger.info(`${deleteTokens.count} tokens revogados expirados removidos.`);
+    const deletedTokens = await revokedTokenRepository.cleanupRevokedTokens();
+    logger.info(`${deletedTokens.count} tokens revogados expirados removidos.`);
   } catch (error) {
     logger.error('Falha ao deletar tokens revogados.', {
       error: error.message,
@@ -21,15 +18,8 @@ const cleanupRevokedTokens = async () => {
 
 const cleanupRefreshTokens = async () => {
   try {
-    const currentDate = new Date();
-    const deleteTokens = await prisma.refreshToken.deleteMany({
-      where: {
-        expiresAt: {
-          lt: currentDate,
-        },
-      },
-    });
-    logger.info(`${deleteTokens.count} refresh tokens expirados removidos.`);
+    const deletedTokens = await refreshTokenRepository.cleanupRefreshTokens();
+    logger.info(`${deletedTokens.count} refresh tokens expirados removidos.`);
   } catch (error) {
     logger.error('Falha ao deletar refresh tokens.', { error: error.message });
   }
@@ -37,15 +27,9 @@ const cleanupRefreshTokens = async () => {
 
 const cleanupVerificationCodes = async () => {
   try {
-    const currentDate = new Date();
-    const deleteCodes = await prisma.verificationCode.deleteMany({
-      where: {
-        expiresAt: {
-          lt: currentDate,
-        },
-      },
-    });
-    logger.info(`${deleteCodes.count} códigos expirados removidos.`);
+    const deletedCodes =
+      await verificationCodeRepository.cleanupVerificationCodes();
+    logger.info(`${deletedCodes.count} códigos expirados removidos.`);
   } catch (error) {
     logger.error('Falha ao deletar códigos.', { error: error.message });
   }

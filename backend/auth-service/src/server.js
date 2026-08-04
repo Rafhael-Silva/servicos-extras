@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
+dotenv.config();
+
 const app = require('./app');
 const startCleanupJobs = require('./job/startCleanupJobs');
 const logger = require('./config/logger');
-
-dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 
