@@ -25,6 +25,19 @@ services:
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
 
+  localstack:
+    container_name: user-service-localstack
+    image: localstack/localstack:latest
+    ports:
+      - '127.0.0.1:4566:4566'
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
 volumes:
   auth_postgres_data:
   user_postgres_data:
+  localstack_data:

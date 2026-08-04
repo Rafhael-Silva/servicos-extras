@@ -1,9 +1,11 @@
 # Servicos Extras - Backend
 
-Backend do projeto Servicos Extras, implementado como API REST baseada em microserviços.  
-Responsável por autenticação, gerenciamento de usuários, vagas de trabalho, processos seletivos, avaliações técnicas, pagamentos e roteamento via API Gateway.
+Este repositório contém o backend da plataforma Serviços Extras.
+A solução é composta por microserviços independentes, responsáveis por autenticação, gerenciamento de usuários, vagas, processos seletivos, avaliações, pagamentos e roteamento das requisições por meio de um API Gateway.
 
----
+## Sobre o projeto
+
+Serviços Extras é uma plataforma que conecta candidatos e recrutadores para oportunidades de serviços extras. A plataforma permite o cadastro de usuários, gerenciamento de vagas, processos seletivos, avaliações, pagamentos e autenticação segura, utilizando uma arquitetura baseada em microserviços.
 
 ## Microserviços
 
@@ -27,10 +29,10 @@ Responsável por autenticação, gerenciamento de usuários, vagas de trabalho, 
 
 #### Cobertura de testes:
 
-- Statements: 99.01%
-- Branches: 94.71%
-- Functions: 97.77%
-- Lines: 99.33%
+- Statements: 98.67%
+- Branches: 96.13%
+- Functions: 89.77%
+- Lines: 98.67%
 
 ### user-service (Em desenvolvimento)
 
@@ -64,6 +66,13 @@ Responsável por autenticação, gerenciamento de usuários, vagas de trabalho, 
 - Não contém lógica de negócio.
 
 ---
+
+## Arquitetura
+
+- Arquitetura baseada em microserviços.
+- APIs REST.
+- Comunicação entre serviços via HTTP.
+- Banco de dados independente por microserviço.67
 
 ## Tecnologias utilizadas
 
@@ -101,9 +110,15 @@ Responsável por autenticação, gerenciamento de usuários, vagas de trabalho, 
 - Serviços SMTP (envio de emails)
 - Nodemailer (integração com SMTP para envio de emails)
 
+### Upload de arquivos
+
+- Multer
+- AWS SDK v3 (Amazon S3)
+- LocalStack (ambiente local para S3)
+
 ### Logs e monitoramento
 
-- Morgan
+- Logger personalizado
 
 ### Automação e tarefas agendadas
 
