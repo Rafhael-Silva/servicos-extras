@@ -21,8 +21,7 @@ enum CurriculumType {
 model UserProfile {
   authUserId String @id
   phone String @unique @db.VarChar(20)
-  pixKey String @unique @db.VarChar(100)
-  photoUrl String?
+  photoKey String?
   bio String? @db.VarChar(500)
   city String @db.VarChar(100)
   state String @db.VarChar(2)
@@ -35,11 +34,12 @@ model UserProfile {
 model Curriculum {
   userId String @id
   type CurriculumType
-  fileUrl String
+  fileKey String?
   professionalSummary String?
-  experience String?
-  education String?
-  courses String?
+  experiences Json?
+  educations Json?
+  courses Json?
+  skills Json?
   observations String?
 
   user UserProfile @relation(fields: [userId], references: [authUserId], onDelete: Cascade)

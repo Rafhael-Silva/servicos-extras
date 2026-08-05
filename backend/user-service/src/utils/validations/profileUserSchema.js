@@ -10,10 +10,6 @@ const profileUserSchema = joi.object({
       'any.required': 'O telefone é obrigatório.',
       'string.empty': 'O telefone não pode estar vazio.',
     }),
-  pixKey: joi.string().trim().max(100).required().messages({
-    'any.required': 'A chave Pix é obrigatória.',
-    'string.empty': 'A chave Pix não pode estar vazia.',
-  }),
   bio: joi.string().max(500).optional(),
   city: joi.string().max(100).required().messages({
     'any.required': 'A cidade é obrigatória.',
