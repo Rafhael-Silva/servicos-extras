@@ -1,4 +1,4 @@
-const { userService } = require('../services');
+const userService = require('../services/userService');
 const logger = require('../config/logger');
 const AppError = require('../../errors/AppError');
 

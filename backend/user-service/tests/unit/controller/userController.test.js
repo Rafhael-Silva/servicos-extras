@@ -1,17 +1,15 @@
-jest.mock('../../../src/services', () => ({
-  userService: {
-    createProfileService: jest.fn(),
-    updateProfileService: jest.fn(),
-    getMeService: jest.fn(),
-    getProfileService: jest.fn(),
-    uploadCurriculumService: jest.fn(),
-    createPlatformCurriculumService: jest.fn(),
-    updatePlatformCurriculumService: jest.fn(),
-  },
+jest.mock('../../../src/services/userService', () => ({
+  createProfileService: jest.fn(),
+  updateProfileService: jest.fn(),
+  getMeService: jest.fn(),
+  getProfileService: jest.fn(),
+  uploadCurriculumService: jest.fn(),
+  createPlatformCurriculumService: jest.fn(),
+  updatePlatformCurriculumService: jest.fn(),
 }));
 jest.mock('../../../src/config/logger');
 
-const { userService } = require('../../../src/services');
+const userService = require('../../../src/services/userService');
 const userController = require('../../../src/controllers/userController');
 const logger = require('../../../src/config/logger');
 const AppError = require('../../../errors/AppError');

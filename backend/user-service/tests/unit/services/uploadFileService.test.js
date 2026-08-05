@@ -6,7 +6,7 @@ jest.mock('../../../src/config/logger', () => ({
   error: jest.fn(),
 }));
 
-const { uploadFileService } = require('../../../src/services');
+const uploadFile = require('../../../src/services/uploadFileService');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const s3Client = require('../../../src/config/storage');
 const logger = require('../../../src/config/logger');
@@ -23,7 +23,7 @@ describe('uploadFileService', () => {
 
     s3Client.send.mockResolvedValue({});
 
-    const result = await uploadFileService(bufferFake, keyFake);
+    const result = await uploadFile(bufferFake, keyFake);
 
     expect(result).toBe(keyFake);
     expect(s3Client.send).toHaveBeenCalledTimes(1);
@@ -40,7 +40,7 @@ describe('uploadFileService', () => {
     s3Client.send.mockRejectedValue(new Error('Falha AWS'));
 
     try {
-      await uploadFileService(bufferFake, keyFake);
+      await uploadFile(bufferFake, keyFake);
 
       fail('Deveria ter lançado erro.');
     } catch (error) {
