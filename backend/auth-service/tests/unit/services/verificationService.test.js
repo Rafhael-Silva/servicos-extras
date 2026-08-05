@@ -1,9 +1,7 @@
-jest.mock('../../../src/config', () => ({
-  logger: {
-    warn: jest.fn(),
-    info: jest.fn(),
-    error: jest.fn(),
-  },
+jest.mock('../../../src/config/logger', () => ({
+  warn: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn(),
 }));
 jest.mock('../../../src/repositories', () => ({
   verificationCodeRepository: {
@@ -41,7 +39,7 @@ jest.mock('jsonwebtoken');
 
 const verificationService = require('../../../src/services/verificationService');
 const emailService = require('../../../src/services/emailService');
-const { logger } = require('../../../src/config');
+const logger = require('../../../src/config/logger');
 const {
   verificationCodeRepository,
   userRepository,

@@ -1,4 +1,4 @@
-const { prisma } = require('../config');
+const prisma = require('../config/prisma');
 
 const createRefreshToken = (userId, tokenHash, expiresAt) => {
   return prisma.refreshToken.create({

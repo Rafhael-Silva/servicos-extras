@@ -1,4 +1,4 @@
-const { prisma } = require('../config');
+const prisma = require('../config/prisma');
 
 const createUser = (newUser) => {
   return prisma.user.create({

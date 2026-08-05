@@ -1,5 +1,5 @@
 const AppError = require('../../errors/AppError');
-const { logger } = require('../config');
+const logger = require('../config/logger');
 
 const errorHandler = (error, req, res, next) => {
   if (error instanceof AppError) {

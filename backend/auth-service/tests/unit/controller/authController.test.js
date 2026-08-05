@@ -32,7 +32,6 @@ const { verificationService } = require('../../../src/services');
 const { cookies } = require('../../../src/utils');
 const { VerificationType, AccountType } = require('@prisma/client');
 const AppError = require('../../../errors/AppError');
-const AUTH = require('../../../src/constants/auth');
 
 const createMockReqCandidato = (overrides = {}) => ({
   body: {

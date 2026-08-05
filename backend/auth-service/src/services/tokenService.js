@@ -1,5 +1,5 @@
 const { refreshTokenRepository } = require('../repositories');
-const { logger } = require('../config');
+const logger = require('../config/logger');
 const AppError = require('../../errors/AppError');
 const jwt = require('jsonwebtoken');
 const { generateHash, generateToken } = require('../utils');

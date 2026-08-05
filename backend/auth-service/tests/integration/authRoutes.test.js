@@ -1,13 +1,11 @@
-jest.mock('../../src/config/mail', () => ({
-  sendEmail: jest.fn(),
-}));
+jest.mock('../../src/config/mail', () => jest.fn());
 
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('../../src/config/prisma');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const { sendEmail } = require('../../src/config/mail');
+const sendEmail = require('../../src/config/mail');
 const {
   generateVerificationToken,
   generateRefreshToken,

@@ -6,7 +6,7 @@ const {
   revokedTokenRepository,
   refreshTokenRepository,
 } = require('../repositories');
-const { logger } = require('../config');
+const logger = require('../config/logger');
 const AppError = require('../../errors/AppError');
 const {
   userService,

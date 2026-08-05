@@ -3,7 +3,7 @@ const {
   verificationCodeRepository,
   userRepository,
 } = require('../repositories');
-const { logger } = require('../config');
+const logger = require('../config/logger');
 const emailService = require('./emailService');
 const { generateHash, normalizeEmail, generateToken } = require('../utils');
 const jwt = require('jsonwebtoken');

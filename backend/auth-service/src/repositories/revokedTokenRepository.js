@@ -1,4 +1,4 @@
-const { prisma } = require('../config');
+const prisma = require('../config/prisma');
 
 const createRevokedToken = (tokenHash, expiresAt) => {
   return prisma.revokedToken.create({

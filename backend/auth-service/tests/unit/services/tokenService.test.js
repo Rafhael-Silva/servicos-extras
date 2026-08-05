@@ -12,16 +12,14 @@ jest.mock('../../../src/utils', () => ({
   },
 }));
 jest.mock('jsonwebtoken');
-jest.mock('../../../src/config', () => ({
-  logger: {
-    error: jest.fn(),
-    warn: jest.fn(),
-  },
+jest.mock('../../../src/config/logger', () => ({
+  error: jest.fn(),
+  warn: jest.fn(),
 }));
 
 const { tokenService } = require('../../../src/services');
 const { refreshTokenRepository } = require('../../../src/repositories');
-const { logger } = require('../../../src/config');
+const logger = require('../../../src/config/logger');
 const jwt = require('jsonwebtoken');
 const { generateHash, generateToken } = require('../../../src/utils');
 const { AccountType } = require('@prisma/client');

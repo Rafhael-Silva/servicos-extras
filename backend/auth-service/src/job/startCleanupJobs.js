@@ -4,7 +4,7 @@ const {
   cleanupRefreshTokens,
   cleanupVerificationCodes,
 } = require('./cleanupJobs');
-const { logger } = require('../config');
+const logger = require('../config/logger');
 
 const startCleanupJobs = () => {
   const cron =

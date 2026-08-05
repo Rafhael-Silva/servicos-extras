@@ -56,12 +56,10 @@ jest.mock('../../../src/utils', () => ({
     calculateAge: jest.fn(),
   },
 }));
-jest.mock('../../../src/config', () => ({
-  logger: {
-    warn: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-  },
+jest.mock('../../../src/config/logger', () => ({
+  warn: jest.fn(),
+  error: jest.fn(),
+  info: jest.fn(),
 }));
 
 const authService = require('../../../src/services/authService');
@@ -75,7 +73,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AppError = require('../../../errors/AppError');
 const { generateHash, normalizeEmail, age } = require('../../../src/utils');
-const { logger } = require('../../../src/config');
+const logger = require('../../../src/config/logger');
 const {
   userRepository,
   refreshTokenRepository,

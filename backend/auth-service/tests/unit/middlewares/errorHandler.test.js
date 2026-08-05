@@ -1,12 +1,10 @@
-jest.mock('../../../src/config', () => ({
-  logger: {
-    warn: jest.fn(),
-    error: jest.fn(),
-  },
+jest.mock('../../../src/config/logger', () => ({
+  warn: jest.fn(),
+  error: jest.fn(),
 }));
 
 const { errorHandler } = require('../../../src/middlewares');
-const { logger } = require('../../../src/config');
+const logger = require('../../../src/config/logger');
 const AppError = require('../../../errors/AppError');
 
 describe('middlewares - errorHandler', () => {

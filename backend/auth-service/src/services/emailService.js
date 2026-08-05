@@ -1,4 +1,4 @@
-const { sendEmail } = require('../config/mail');
+const sendEmail = require('../config/mail');
 
 const sendWelcomeEmail = async (name, email) => {
   const subject = 'Bem-vindo à nossa plataforma!';

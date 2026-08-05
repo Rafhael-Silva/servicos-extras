@@ -1,4 +1,4 @@
-const { prisma } = require('../config');
+const prisma = require('../config/prisma');
 
 const countRecentValidCodes = (userId, type, now, windowStart) => {
   return prisma.verificationCode.count({
