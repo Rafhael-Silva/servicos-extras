@@ -1,16 +1,16 @@
-const deleteFile = require('../../src/services/deleteFileService');
-const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../../src/config/storage');
-const logger = require('../../src/config/logger');
-const AppError = require('../../errors/AppError');
-
 jest.mock('@aws-sdk/client-s3');
-jest.mock('../../src/config/storage');
-jest.mock('../../src/config/logger', () => ({
+jest.mock('../../../src/config/storage');
+jest.mock('../../../src/config/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
 }));
+
+const { deleteFileService } = require('../../../src/services');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const s3Client = require('../../../src/config/storage');
+const logger = require('../../../src/config/logger');
+const AppError = require('../../../errors/AppError');
 
 describe('deleteFileService', () => {
   afterEach(() => {
@@ -22,7 +22,7 @@ describe('deleteFileService', () => {
 
     s3Client.send.mockResolvedValue({});
 
-    await deleteFile(keyFake);
+    await deleteFileService(keyFake);
 
     expect(DeleteObjectCommand).toHaveBeenCalledWith({
       Bucket: process.env.AWS_S3_BUCKET,
@@ -37,7 +37,7 @@ describe('deleteFileService', () => {
     s3Client.send.mockRejectedValue(new Error('Falha AWS'));
 
     try {
-      await deleteFile(keyFake);
+      await deleteFileService(keyFake);
 
       fail('deveria ter lançado erro.');
     } catch (error) {

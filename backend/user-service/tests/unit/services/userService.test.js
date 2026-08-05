@@ -1,14 +1,6 @@
-const userService = require('../../src/services/userService');
-const uploadFile = require('../../src/services/uploadFileService');
-const deleteFile = require('../../src/services/deleteFileService');
-const prisma = require('../../src/config/prisma');
-const { CurriculumType } = require('@prisma/client');
-const logger = require('../../src/config/logger');
-const AppError = require('../../errors/AppError');
-
-jest.mock('../../src/services/uploadFileService', () => jest.fn());
-jest.mock('../../src/services/deleteFileService', () => jest.fn());
-jest.mock('../../src/config/prisma', () => ({
+jest.mock('../../../src/services/uploadFileService', () => jest.fn());
+jest.mock('../../../src/services/deleteFileService', () => jest.fn());
+jest.mock('../../../src/config/prisma', () => ({
   userProfile: {
     findUnique: jest.fn(),
     create: jest.fn(),
@@ -21,10 +13,19 @@ jest.mock('../../src/config/prisma', () => ({
     upsert: jest.fn(),
   },
 }));
-jest.mock('../../src/config/logger', () => ({
+jest.mock('../../../src/config/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
+  error: jest.fn(),
 }));
+
+const userService = require('../../../src/services/userService');
+const uploadFile = require('../../../src/services/uploadFileService');
+const deleteFile = require('../../../src/services/deleteFileService');
+const prisma = require('../../../src/config/prisma');
+const { CurriculumType } = require('@prisma/client');
+const logger = require('../../../src/config/logger');
+const AppError = require('../../../errors/AppError');
 
 describe('userService - createProfileService', () => {
   afterEach(() => {

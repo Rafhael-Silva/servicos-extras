@@ -1,16 +1,16 @@
-const uploadFile = require('../../src/services/uploadFileService');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../../src/config/storage');
-const logger = require('../../src/config/logger');
-const AppError = require('../../errors/AppError');
-
 jest.mock('@aws-sdk/client-s3');
-jest.mock('../../src/config/storage');
-jest.mock('../../src/config/logger', () => ({
+jest.mock('../../../src/config/storage');
+jest.mock('../../../src/config/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
 }));
+
+const { uploadFileService } = require('../../../src/services');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3Client = require('../../../src/config/storage');
+const logger = require('../../../src/config/logger');
+const AppError = require('../../../errors/AppError');
 
 describe('uploadFileService', () => {
   afterEach(() => {
@@ -23,7 +23,7 @@ describe('uploadFileService', () => {
 
     s3Client.send.mockResolvedValue({});
 
-    const result = await uploadFile(bufferFake, keyFake);
+    const result = await uploadFileService(bufferFake, keyFake);
 
     expect(result).toBe(keyFake);
     expect(s3Client.send).toHaveBeenCalledTimes(1);
@@ -40,7 +40,7 @@ describe('uploadFileService', () => {
     s3Client.send.mockRejectedValue(new Error('Falha AWS'));
 
     try {
-      await uploadFile(bufferFake, keyFake);
+      await uploadFileService(bufferFake, keyFake);
 
       fail('Deveria ter lançado erro.');
     } catch (error) {
