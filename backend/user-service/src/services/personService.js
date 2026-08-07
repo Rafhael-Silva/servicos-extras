@@ -35,7 +35,7 @@ const createProfileService = async (
   let photoKey = null;
 
   if (buffer && originalname) {
-    const key = `profiles/${authUserId}/${originalname}`;
+    const key = `person-profiles/${authUserId}/${originalname}`;
     photoKey = await uploadFile(buffer, key);
   }
 
@@ -61,7 +61,7 @@ const createProfileService = async (
 
   const personAddress = await personAddressRepository.create(dataAddress);
 
-  logger.info('Perfil criado com sucesso.', {
+  logger.info('Perfil do usuário criado com sucesso.', {
     authUserId,
   });
 
@@ -85,7 +85,7 @@ const updateProfileService = async (
     await personProfileRepository.findByAuthUserId(authUserId);
 
   if (!personProfile) {
-    logger.warn('Perfil não encontrado.', { authUserId });
+    logger.warn('Perfil do usuário não encontrado.', { authUserId });
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
@@ -113,7 +113,7 @@ const updateProfileService = async (
     if (personProfile.photoKey) {
       await deleteFile(personProfile.photoKey);
     }
-    const key = `profiles/${authUserId}/${originalname}`;
+    const key = `person-profiles/${authUserId}/${originalname}`;
     const photoKey = await uploadFile(buffer, key);
 
     dataProfile.photoKey = photoKey;
@@ -128,7 +128,7 @@ const updateProfileService = async (
     dataAddress,
   );
 
-  logger.info('Perfil atualizado com sucesso.', { authUserId });
+  logger.info('Perfil do usuário atualizado com sucesso.', { authUserId });
 
   return {
     ...updatedPersonProfile,
@@ -149,7 +149,7 @@ const getMyProfileService = async (authUserId, accountType) => {
   const myProfile = await personProfileRepository.getMyProfile(authUserId);
 
   if (!myProfile) {
-    logger.warn('Perfil não encontrado.', { authUserId });
+    logger.warn('Perfil do usuário não encontrado.', { authUserId });
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
@@ -167,7 +167,7 @@ const getPublicProfileService = async (authUserId, personId) => {
     await personProfileRepository.getPublicProfile(personId);
 
   if (!publicProfile) {
-    logger.warn('Perfil não encontrado.', { authUserId, personId });
+    logger.warn('Perfil do usuário não encontrado.', { authUserId, personId });
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
