@@ -4,8 +4,8 @@ const {
   curriculumRepository,
 } = require('../repositories');
 const { CurriculumType } = require('@prisma/client');
-const uploadFile = require('./uploadFileService');
-const deleteFile = require('./deleteFileService');
+const uploadFile = require('../storage/uploadFile');
+const deleteFile = require('../storage/deleteFile');
 const AppError = require('../../errors/AppError');
 const logger = require('../config/logger');
 

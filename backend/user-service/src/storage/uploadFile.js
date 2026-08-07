@@ -1,5 +1,5 @@
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../config/storage');
+const s3Client = require('../config/s3Client');
 const AppError = require('../../errors/AppError');
 const logger = require('../config/logger');
 
