@@ -1,6 +1,6 @@
-# Servicos Extras - Backend
+# Servicos Extras
 
-Este repositório contém o backend da plataforma Serviços Extras.
+Repositório da plataforma Serviços Extras.
 A solução é composta por microserviços independentes, responsáveis por autenticação, gerenciamento de usuários, vagas, processos seletivos, avaliações, pagamentos e roteamento das requisições por meio de um API Gateway.
 
 ## Sobre o projeto

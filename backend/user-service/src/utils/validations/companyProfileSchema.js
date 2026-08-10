@@ -1,8 +1,12 @@
 const joi = require('joi');
 
-const personProfileSchema = joi.object({
-  profileData: joi
+const companyProfileSchema = joi.object({
+  companyData: joi
     .object({
+      companyName: joi.string().max(150).required().messages({
+        'any.required': 'O campo nome da empresa é obrigatório.',
+        'string.empty': 'O campo nome da empresa não pode estar vazio.',
+      }),
       phone: joi
         .string()
         .trim()
@@ -53,4 +57,4 @@ const personProfileSchema = joi.object({
     .required(),
 });
 
-module.exports = personProfileSchema;
+module.exports = companyProfileSchema;
