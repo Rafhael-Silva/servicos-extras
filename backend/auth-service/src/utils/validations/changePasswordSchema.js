@@ -2,13 +2,13 @@ const joi = require('joi');
 
 const changePasswordSchema = joi.object({
   currentPassword: joi.string().required().messages({
-    'any.required': 'A senha atual é obrigatória.',
-    'string.empty': 'A senha atual não pode estar vazia.',
+    'any.required': 'O campo da senha atual é obrigatório.',
+    'string.empty': 'O campo da senha atual não pode estar vazio.',
   }),
   newPassword: joi.string().min(6).required().messages({
-    'any.required': 'A nova senha é obrigatória.',
-    'string.empty': 'A nova senha não pode estar vazia.',
-    'string.min': 'A nova senha deve ter no mínimo 6 caracteres.',
+    'any.required': 'O campo da nova senha é obrigatório.',
+    'string.empty': 'O campo da nova senha não pode estar vazio.',
+    'string.min': 'O campo da nova senha deve ter no mínimo 6 caracteres.',
   }),
   confirmNewPassword: joi
     .any()
@@ -16,7 +16,7 @@ const changePasswordSchema = joi.object({
     .required()
     .messages({
       'any.only': 'A confirmação da senha não coincide com a nova senha.',
-      'any.required': 'A confirmação da nova senha é obrigatória.',
+      'any.required': 'O campo de confirmação da nova senha é obrigatório.',
     }),
 });
 
