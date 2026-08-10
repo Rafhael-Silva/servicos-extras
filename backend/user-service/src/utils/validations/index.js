@@ -1,7 +1,7 @@
-const profileUserSchema = require('./profileUserSchema');
-const curriculumUserSchema = require('./curriculumUserSchema');
+const personProfileSchema = require('./personProfileSchema');
+const curriculumPersonSchema = require('./curriculumPersonSchema');
 
 module.exports = {
-  profileUserSchema,
-  curriculumUserSchema,
+  personProfileSchema,
+  curriculumPersonSchema,
 };

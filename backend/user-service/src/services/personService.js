@@ -171,7 +171,7 @@ const getPublicProfileService = async (authUserId, personId) => {
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
-  logger.info('Perfil do usuário encontrado co sucesso.', {
+  logger.info('Perfil do usuário encontrado com sucesso.', {
     authUserId,
     personId,
   });

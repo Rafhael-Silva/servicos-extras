@@ -1,6 +1,6 @@
 const joi = require('joi');
 
-const curriculumUserSchema = joi.object({
+const curriculumPersonSchema = joi.object({
   professionalSummary: joi.string().trim().max(1000),
   experiences: joi.array().items(
     joi.object({
@@ -28,4 +28,4 @@ const curriculumUserSchema = joi.object({
   observations: joi.string().trim().max(1000),
 });
 
-module.exports = curriculumUserSchema;
+module.exports = curriculumPersonSchema;
