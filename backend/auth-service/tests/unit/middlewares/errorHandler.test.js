@@ -47,7 +47,5 @@ describe('middlewares - errorHandler', () => {
       stack: error.stack,
     });
     expect(logger.warn).not.toHaveBeenCalled();
-
-    console.log(error.stack);
   });
 });
