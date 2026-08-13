@@ -27,7 +27,7 @@ const createProfileService = async (
     throw new AppError('Usuário já possui perfil cadastrado.', 409);
   }
 
-  const { buffer, originalname } = fileData;
+  const { buffer, originalname } = fileData || {};
   const { phone, bio } = profileData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
@@ -89,7 +89,7 @@ const updateProfileService = async (
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
-  const { buffer, originalname } = fileData;
+  const { buffer, originalname } = fileData || {};
   const { phone, bio } = profileData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
@@ -256,7 +256,7 @@ const createPlatformCurriculumService = async (
     await deleteFile(existingCurriculum.fileKey);
   }
 
-  const data = {
+  const dataCurriculum = {
     personId: authUserId,
     type: CurriculumType.PLATFORM,
     fileKey: null,
@@ -268,7 +268,7 @@ const createPlatformCurriculumService = async (
     observations,
   };
 
-  const platformCurriculum = await curriculumRepository.upsert(data);
+  const platformCurriculum = await curriculumRepository.upsert(dataCurriculum);
 
   logger.info('Currículo criado com sucesso.', { authUserId });
 
@@ -314,7 +314,7 @@ const updatePlatformCurriculumService = async (
     throw new AppError('Este tipo de currículo não aceita atualizações.', 400);
   }
 
-  const data = {
+  const dataCurriculum = {
     professionalSummary,
     experiences,
     educations,
@@ -323,7 +323,10 @@ const updatePlatformCurriculumService = async (
     observations,
   };
 
-  const updatedCurriculum = await curriculumRepository.update(authUserId, data);
+  const updatedCurriculum = await curriculumRepository.update(
+    authUserId,
+    dataCurriculum,
+  );
 
   logger.info('Currículo atualizado com sucesso.', { authUserId });
 

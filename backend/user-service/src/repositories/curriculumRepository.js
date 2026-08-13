@@ -7,19 +7,19 @@ const findByPersonId = (authUserId) => {
   });
 };
 
-const upsert = (data) => {
-  const { personId, ...curriculumData } = data;
+const upsert = (dataCurriculum) => {
+  const { personId, ...curriculumData } = dataCurriculum;
   return prisma.curriculum.upsert({
     where: { personId },
     update: curriculumData,
-    create: data,
+    create: dataCurriculum,
   });
 };
 
-const update = (authUserId, data) => {
+const update = (authUserId, dataCurriculum) => {
   return prisma.curriculum.update({
     where: { personId: authUserId },
-    data,
+    data: dataCurriculum,
     select: {
       professionalSummary: true,
       experiences: true,
