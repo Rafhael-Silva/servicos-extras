@@ -25,7 +25,7 @@ const createProfileService = async (
     throw new AppError('Empresa já possui perfil cadastrado.', 409);
   }
 
-  const { buffer, originalname } = fileData;
+  const { buffer, originalname } = fileData || {};
   const { companyName, phone, bio } = companyData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
@@ -86,7 +86,7 @@ const updateProfileService = async (
     throw new AppError('Perfil da empresa não encontrado.', 404);
   }
 
-  const { buffer, originalname } = fileData;
+  const { buffer, originalname } = fileData || {};
   const { companyName, phone, bio } = companyData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
