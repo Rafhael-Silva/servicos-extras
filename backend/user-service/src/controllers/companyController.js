@@ -4,12 +4,12 @@ const { asyncHandler } = require('../middlewares');
 const createProfile = asyncHandler(async (req, res) => {
   const authUserId = req.user.id;
   const fileData = req.file;
-  const { profileData, addressData } = req.body;
+  const { companyData, addressData } = req.body;
 
   const response = await companyService.createProfileService(
     authUserId,
     fileData,
-    profileData,
+    companyData,
     addressData,
   );
 
@@ -19,12 +19,12 @@ const createProfile = asyncHandler(async (req, res) => {
 const updateProfile = asyncHandler(async (req, res) => {
   const authUserId = req.user.id;
   const fileData = req.file;
-  const { profileData, addressData } = req.body;
+  const { companyData, addressData } = req.body;
 
   const response = await companyService.updateProfileService(
     authUserId,
     fileData,
-    profileData,
+    companyData,
     addressData,
   );
 

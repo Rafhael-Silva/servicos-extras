@@ -16,7 +16,7 @@ const personController = require('../../../src/controllers/personController');
 const AppError = require('../../../errors/AppError');
 
 describe('personController - createProfile', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -185,7 +185,7 @@ describe('personController - createProfile', () => {
 });
 
 describe('personController - updateProfile', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -350,7 +350,7 @@ describe('personController - updateProfile', () => {
 });
 
 describe('personController - myProfile', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -434,13 +434,13 @@ describe('personController - myProfile', () => {
 });
 
 describe('personController - publicProfile', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test('deve buscar o perfil do usuário com sucesso.', async () => {
     const mockResponse = {
-      photoKey: 'profiles/candidate123/photo.jpeg',
+      photoKey: 'person-profiles/candidate123/photo.jpeg',
       bio: 'Bio Fake',
       address: {
         city: 'Poços de Caldas',
@@ -514,7 +514,7 @@ describe('personController - publicProfile', () => {
 });
 
 describe('personController - uploadCurriculum', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -592,7 +592,7 @@ describe('personController - uploadCurriculum', () => {
 });
 
 describe('personController - createPlataformCurriculum', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -682,7 +682,7 @@ describe('personController - createPlataformCurriculum', () => {
 });
 
 describe('personController - updatePlataformCurriculum', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
