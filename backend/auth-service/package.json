@@ -25,7 +25,8 @@
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.3",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

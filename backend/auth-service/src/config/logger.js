@@ -1,4 +1,4 @@
-const createAppLogger = require('../../../shared/logger');
+const createAppLogger = require('../../../shared/logger/createAppLogger');
 
 const logger = createAppLogger('auth-service');
 
