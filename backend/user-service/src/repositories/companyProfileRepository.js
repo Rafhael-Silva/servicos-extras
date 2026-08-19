@@ -41,7 +41,6 @@ const create = (dataCompany) => {
       authUserId: true,
       companyName: true,
       phone: true,
-      logoKey: true,
       bio: true,
     },
   });
@@ -55,10 +54,19 @@ const update = (authUserId, dataCompany) => {
   });
 };
 
+const updateLogo = (authUserId, logoKey) => {
+  return prisma.companyProfile.update({
+    where: { authUserId },
+    data: { logoKey },
+    select: { authUserId: true, logoKey: true },
+  });
+};
+
 module.exports = {
   findByAuthUserId,
   getMyProfile,
   getPublicProfile,
   create,
   update,
+  updateLogo,
 };

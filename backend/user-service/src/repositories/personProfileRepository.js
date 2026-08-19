@@ -52,7 +52,6 @@ const create = (dataProfile) => {
     select: {
       authUserId: true,
       phone: true,
-      photoKey: true,
       bio: true,
     },
   });
@@ -62,7 +61,15 @@ const update = (authUserId, dataProfile) => {
   return prisma.personProfile.update({
     where: { authUserId },
     data: dataProfile,
-    select: { authUserId: true, phone: true, photoKey: true, bio: true },
+    select: { authUserId: true, phone: true, bio: true },
+  });
+};
+
+const updatePhoto = (authUserId, photoKey) => {
+  return prisma.personProfile.update({
+    where: { authUserId },
+    data: { photoKey },
+    select: { authUserId: true, photoKey: true },
   });
 };
 
@@ -72,4 +79,5 @@ module.exports = {
   getPublicProfile,
   create,
   update,
+  updatePhoto,
 };

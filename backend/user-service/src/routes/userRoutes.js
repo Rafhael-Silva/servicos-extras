@@ -13,14 +13,18 @@ const companyController = require('../controllers/companyController');
 router.post(
   '/person',
   authenticateToken,
-  upload.single('photo'),
   validateSchema(personProfileSchema),
   personController.createProfile,
 );
 router.put(
-  '/person',
+  '/person/photo',
   authenticateToken,
   upload.single('photo'),
+  personController.uploadPhoto,
+);
+router.put(
+  '/person',
+  authenticateToken,
   validateSchema(personProfileSchema),
   personController.updateProfile,
 );
@@ -55,14 +59,18 @@ router.put(
 router.post(
   '/company',
   authenticateToken,
-  upload.single('logo'),
   validateSchema(companyProfileSchema),
   companyController.createProfile,
 );
 router.put(
-  '/company',
+  '/company/logo',
   authenticateToken,
   upload.single('logo'),
+  companyController.uploadLogo,
+);
+router.put(
+  '/company',
+  authenticateToken,
   validateSchema(companyProfileSchema),
   companyController.updateProfile,
 );

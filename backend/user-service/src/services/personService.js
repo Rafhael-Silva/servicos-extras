@@ -9,12 +9,7 @@ const deleteFile = require('../storage/deleteFile');
 const AppError = require('../../errors/AppError');
 const logger = require('../config/logger');
 
-const createProfileService = async (
-  authUserId,
-  fileData,
-  profileData,
-  addressData,
-) => {
+const createProfileService = async (authUserId, profileData, addressData) => {
   if (!authUserId) {
     throw new AppError('Dados inválidos.', 400);
   }
@@ -27,22 +22,13 @@ const createProfileService = async (
     throw new AppError('Usuário já possui perfil cadastrado.', 409);
   }
 
-  const { buffer, originalname } = fileData || {};
   const { phone, bio } = profileData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
 
-  let photoKey = null;
-
-  if (buffer && originalname) {
-    const key = `person-profiles/${authUserId}/${originalname}`;
-    photoKey = await uploadFile(buffer, key);
-  }
-
   const dataProfile = {
     authUserId,
     phone,
-    photoKey,
     bio,
   };
 
@@ -71,12 +57,39 @@ const createProfileService = async (
   };
 };
 
-const updateProfileService = async (
-  authUserId,
-  fileData,
-  profileData,
-  addressData,
-) => {
+const uploadPhotoService = async (authUserId, fileData) => {
+  if (!authUserId || !fileData) {
+    throw new AppError('Dados inválidos.', 400);
+  }
+
+  const existingProfile =
+    await personProfileRepository.findByAuthUserId(authUserId);
+
+  if (!existingProfile) {
+    logger.warn('Perfil do usuário não encontrado.', { authUserId });
+    throw new AppError('Perfil do usuário não encontrado.', 404);
+  }
+
+  if (existingProfile.photoKey) {
+    await deleteFile(existingProfile.photoKey);
+  }
+
+  const { buffer, originalname } = fileData;
+
+  const key = `person-profiles/${authUserId}/${originalname}`;
+  const photoKey = await uploadFile(buffer, key);
+
+  const updatedProfilePhoto = await personProfileRepository.updatePhoto(
+    authUserId,
+    photoKey,
+  );
+
+  logger.info('Foto do usuário carregada com sucesso.', { authUserId });
+
+  return updatedProfilePhoto;
+};
+
+const updateProfileService = async (authUserId, profileData, addressData) => {
   if (!authUserId) {
     throw new AppError('Dados inválidos.', 400);
   }
@@ -89,7 +102,6 @@ const updateProfileService = async (
     throw new AppError('Perfil do usuário não encontrado.', 404);
   }
 
-  const { buffer, originalname } = fileData || {};
   const { phone, bio } = profileData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
@@ -108,16 +120,6 @@ const updateProfileService = async (
     state,
     zipCode,
   };
-
-  if (buffer && originalname) {
-    if (personProfile.photoKey) {
-      await deleteFile(personProfile.photoKey);
-    }
-    const key = `person-profiles/${authUserId}/${originalname}`;
-    const photoKey = await uploadFile(buffer, key);
-
-    dataProfile.photoKey = photoKey;
-  }
 
   const updatedPersonProfile = await personProfileRepository.update(
     authUserId,
@@ -335,6 +337,7 @@ const updatePlatformCurriculumService = async (
 
 module.exports = {
   createProfileService,
+  uploadPhotoService,
   updateProfileService,
   getMyProfileService,
   getPublicProfileService,

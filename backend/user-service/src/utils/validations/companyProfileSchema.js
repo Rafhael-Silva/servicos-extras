@@ -51,7 +51,7 @@ const companyProfileSchema = joi.object({
         .messages({
           'any.required': 'O campo CEP é obrigatório.',
           'string.empty': 'O campo CEP não pode estar vazio.',
-          'string.length': 'O campo CEP deve conter 8 caracteres.',
+          'string.pattern.base': 'O campo CEP deve conter 8 dígitos.',
         }),
     })
     .required(),

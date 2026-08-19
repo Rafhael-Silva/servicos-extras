@@ -7,12 +7,7 @@ const deleteFile = require('../storage/deleteFile');
 const AppError = require('../../errors/AppError');
 const logger = require('../config/logger');
 
-const createProfileService = async (
-  authUserId,
-  fileData,
-  companyData,
-  addressData,
-) => {
+const createProfileService = async (authUserId, companyData, addressData) => {
   if (!authUserId) {
     throw new AppError('Dados inválidos.', 400);
   }
@@ -25,23 +20,14 @@ const createProfileService = async (
     throw new AppError('Empresa já possui perfil cadastrado.', 409);
   }
 
-  const { buffer, originalname } = fileData || {};
   const { companyName, phone, bio } = companyData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
-
-  let logoKey = null;
-
-  if (buffer && originalname) {
-    const key = `company-profiles/${authUserId}/${originalname}`;
-    logoKey = await uploadFile(buffer, key);
-  }
 
   const dataCompany = {
     authUserId,
     companyName,
     phone,
-    logoKey,
     bio,
   };
 
@@ -68,12 +54,39 @@ const createProfileService = async (
   };
 };
 
-const updateProfileService = async (
-  authUserId,
-  fileData,
-  companyData,
-  addressData,
-) => {
+const uploadLogoService = async (authUserId, fileData) => {
+  if (!authUserId || !fileData) {
+    throw new AppError('Dados inválidos.', 400);
+  }
+
+  const existingProfile =
+    await companyProfileRepository.findByAuthUserId(authUserId);
+
+  if (!existingProfile) {
+    logger.warn('Empresa não encontrada.', { authUserId });
+    throw new AppError('Perfil da empresa não encontrado.', 404);
+  }
+
+  if (existingProfile.logoKey) {
+    await deleteFile(existingProfile.logoKey);
+  }
+
+  const { buffer, originalname } = fileData;
+
+  const key = `company-profiles/${authUserId}/${originalname}`;
+  const logoKey = await uploadFile(buffer, key);
+
+  const updatedProfileLogo = await companyProfileRepository.updateLogo(
+    authUserId,
+    logoKey,
+  );
+
+  logger.info('Logo da empresa carregada com sucesso.', { authUserId });
+
+  return updatedProfileLogo;
+};
+
+const updateProfileService = async (authUserId, companyData, addressData) => {
   if (!authUserId) {
     throw new AppError('Dados inválidos.', 400);
   }
@@ -86,7 +99,6 @@ const updateProfileService = async (
     throw new AppError('Perfil da empresa não encontrado.', 404);
   }
 
-  const { buffer, originalname } = fileData || {};
   const { companyName, phone, bio } = companyData;
   const { street, number, complement, neighborhood, city, state, zipCode } =
     addressData;
@@ -106,16 +118,6 @@ const updateProfileService = async (
     state,
     zipCode,
   };
-
-  if (buffer && originalname) {
-    if (companyProfile.logoKey) {
-      await deleteFile(companyProfile.logoKey);
-    }
-    const key = `company-profiles/${authUserId}/${originalname}`;
-    const logoKey = await uploadFile(buffer, key);
-
-    dataCompany.logoKey = logoKey;
-  }
 
   const updatedCompanyProfile = await companyProfileRepository.update(
     authUserId,
@@ -180,6 +182,7 @@ const getPublicProfileService = async (authUserId, companyId) => {
 
 module.exports = {
   createProfileService,
+  uploadLogoService,
   updateProfileService,
   getMyProfileService,
   getPublicProfileService,

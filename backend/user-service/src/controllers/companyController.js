@@ -3,12 +3,10 @@ const { asyncHandler } = require('../middlewares');
 
 const createProfile = asyncHandler(async (req, res) => {
   const authUserId = req.user.id;
-  const fileData = req.file;
   const { companyData, addressData } = req.body;
 
   const response = await companyService.createProfileService(
     authUserId,
-    fileData,
     companyData,
     addressData,
   );
@@ -16,14 +14,21 @@ const createProfile = asyncHandler(async (req, res) => {
   return res.status(201).json(response);
 });
 
-const updateProfile = asyncHandler(async (req, res) => {
+const uploadLogo = asyncHandler(async (req, res) => {
   const authUserId = req.user.id;
   const fileData = req.file;
+
+  const response = await companyService.uploadLogoService(authUserId, fileData);
+
+  return res.status(200).json(response);
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const authUserId = req.user.id;
   const { companyData, addressData } = req.body;
 
   const response = await companyService.updateProfileService(
     authUserId,
-    fileData,
     companyData,
     addressData,
   );
@@ -57,6 +62,7 @@ const publicProfile = asyncHandler(async (req, res) => {
 
 module.exports = {
   createProfile,
+  uploadLogo,
   updateProfile,
   myProfile,
   publicProfile,
