@@ -6,6 +6,7 @@ jest.mock('../../../src/services/personService', () => ({
   uploadCurriculumService: jest.fn(),
   createPlatformCurriculumService: jest.fn(),
   updatePlatformCurriculumService: jest.fn(),
+  uploadPhotoService: jest.fn(),
 }));
 jest.mock('../../../src/middlewares', () => ({
   asyncHandler: jest.fn((fn) => fn),
@@ -20,14 +21,10 @@ describe('personController - createProfile', () => {
     jest.clearAllMocks();
   });
 
-  test('deve criar perfil do usuário com foto com sucesso.', async () => {
+  test('deve criar perfil do usuário com sucesso.', async () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('fake-image-content'),
-        originalname: 'photo.jpeg',
       },
       body: {
         profileData: {
@@ -52,7 +49,6 @@ describe('personController - createProfile', () => {
     const mockResponse = {
       authUserId: 'user123',
       phone: '54678543215',
-      photoKey: 'person-profiles/user123/photo.jpeg',
       bio: 'bio fake',
       address: {
         personId: 'user123',
@@ -74,63 +70,6 @@ describe('personController - createProfile', () => {
     expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
     expect(personService.createProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
-      mockReq.body.profileData,
-      mockReq.body.addressData,
-    );
-  });
-  test('deve criar perfil do usuário sem foto com sucesso.', async () => {
-    const mockReq = {
-      user: {
-        id: 'user123',
-      },
-      file: undefined,
-      body: {
-        profileData: {
-          phone: '54678543215',
-          bio: 'bio fake',
-        },
-        addressData: {
-          street: 'Rua fake',
-          number: '67',
-          complement: null,
-          neighborhood: 'Bairro fake',
-          city: 'Cidade fake',
-          state: 'FK',
-          zipCode: '54321876',
-        },
-      },
-    };
-    const mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const mockResponse = {
-      authUserId: 'user123',
-      phone: '54678543215',
-      photoKey: null,
-      bio: 'bio fake',
-      address: {
-        personId: 'user123',
-        street: 'Rua fake',
-        number: '67',
-        complement: null,
-        neighborhood: 'Bairro fake',
-        city: 'Cidade fake',
-        state: 'FK',
-        zipCode: '54321876',
-      },
-    };
-
-    personService.createProfileService.mockResolvedValue(mockResponse);
-
-    await personController.createProfile(mockReq, mockRes);
-
-    expect(mockRes.status).toHaveBeenCalledWith(201);
-    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
-    expect(personService.createProfileService).toHaveBeenCalledWith(
-      mockReq.user.id,
-      mockReq.file,
       mockReq.body.profileData,
       mockReq.body.addressData,
     );
@@ -139,10 +78,6 @@ describe('personController - createProfile', () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('fake-image-content'),
-        originalname: 'photo.jpeg',
       },
       body: {
         profileData: {
@@ -177,9 +112,71 @@ describe('personController - createProfile', () => {
     expect(mockRes.json).not.toHaveBeenCalled();
     expect(personService.createProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
       mockReq.body.profileData,
       mockReq.body.addressData,
+    );
+  });
+});
+
+describe('personController - uploadPhoto', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve fazer upload da foto do uauário com sucesso.', async () => {
+    const mockReq = {
+      user: { id: 'user123' },
+      file: {
+        buffer: Buffer.from('photo-fake-content'),
+        originalname: 'photo.jpeg',
+      },
+    };
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const mockResponse = {
+      authUserId: mockReq.user.id,
+      photoKey: 'person-profiles/user123/photo.jpeg',
+    };
+
+    personService.uploadPhotoService.mockResolvedValue(mockResponse);
+
+    await personController.uploadPhoto(mockReq, mockRes);
+
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
+    expect(personService.uploadPhotoService).toHaveBeenCalledWith(
+      mockReq.user.id,
+      mockReq.file,
+    );
+  });
+  test('deve propagar o AppError retornado pelo uploadPhotoService.', async () => {
+    const mockReq = {
+      user: { id: 'user123' },
+      file: {
+        buffer: Buffer.from('image-fake-content'),
+        originalname: 'photo.jpeg',
+      },
+    };
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    personService.uploadPhotoService.mockRejectedValue(
+      new AppError('Perfil do usuário não encontrado.', 404),
+    );
+
+    await expect(
+      personController.uploadPhoto(mockReq, mockRes),
+    ).rejects.toThrow(AppError);
+
+    expect(mockRes.status).not.toHaveBeenCalled();
+    expect(mockRes.json).not.toHaveBeenCalled();
+    expect(personService.uploadPhotoService).toHaveBeenCalledWith(
+      mockReq.user.id,
+      mockReq.file,
     );
   });
 });
@@ -189,14 +186,10 @@ describe('personController - updateProfile', () => {
     jest.clearAllMocks();
   });
 
-  test('deve atualizar perfil do usuário com foto com sucesso.', async () => {
+  test('deve atualizar perfil do usuário com sucesso.', async () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('fake-image-content'),
-        originalname: 'photo.jpeg',
       },
       body: {
         profileData: {
@@ -221,7 +214,6 @@ describe('personController - updateProfile', () => {
     const mockResponse = {
       authUserId: 'user123',
       phone: '54678543215',
-      photoKey: 'person-profiles/user123/photo.jpeg',
       bio: 'bio fake',
       address: {
         street: 'Rua fake',
@@ -242,62 +234,6 @@ describe('personController - updateProfile', () => {
     expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
     expect(personService.updateProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
-      mockReq.body.profileData,
-      mockReq.body.addressData,
-    );
-  });
-  test('deve atualizar perfil do usuário sem foto com sucesso.', async () => {
-    const mockReq = {
-      user: {
-        id: 'user123',
-      },
-      file: undefined,
-      body: {
-        profileData: {
-          phone: '54678543215',
-          bio: 'bio fake',
-        },
-        addressData: {
-          street: 'Rua fake',
-          number: '67',
-          complement: null,
-          neighborhood: 'Bairro fake',
-          city: 'Cidade fake',
-          state: 'FK',
-          zipCode: '54321876',
-        },
-      },
-    };
-    const mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const mockResponse = {
-      authUserId: 'user123',
-      phone: '54678543215',
-      photoKey: null,
-      bio: 'bio fake',
-      address: {
-        street: 'Rua fake',
-        number: '67',
-        complement: null,
-        neighborhood: 'Bairro fake',
-        city: 'Cidade fake',
-        state: 'FK',
-        zipCode: '54321876',
-      },
-    };
-
-    personService.updateProfileService.mockResolvedValue(mockResponse);
-
-    await personController.updateProfile(mockReq, mockRes);
-
-    expect(mockRes.status).toHaveBeenCalledWith(200);
-    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
-    expect(personService.updateProfileService).toHaveBeenCalledWith(
-      mockReq.user.id,
-      mockReq.file,
       mockReq.body.profileData,
       mockReq.body.addressData,
     );
@@ -305,10 +241,6 @@ describe('personController - updateProfile', () => {
   test('deve propagar o AppError retornado pelo updateProfileService.', async () => {
     const mockReq = {
       user: { id: 'user123' },
-      file: {
-        buffer: Buffer.from('image-fake-content'),
-        originalname: 'photo.jpeg',
-      },
       body: {
         profileData: {
           phone: '54678543215',
@@ -342,7 +274,6 @@ describe('personController - updateProfile', () => {
     expect(mockRes.json).not.toHaveBeenCalled();
     expect(personService.updateProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
       mockReq.body.profileData,
       mockReq.body.addressData,
     );

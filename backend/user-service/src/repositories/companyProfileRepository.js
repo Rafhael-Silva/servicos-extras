@@ -50,7 +50,7 @@ const update = (authUserId, dataCompany) => {
   return prisma.companyProfile.update({
     where: { authUserId },
     data: dataCompany,
-    select: { companyName: true, phone: true, logoKey: true, bio: true },
+    select: { companyName: true, phone: true, bio: true },
   });
 };
 

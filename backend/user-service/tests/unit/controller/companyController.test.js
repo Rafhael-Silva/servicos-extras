@@ -3,6 +3,7 @@ jest.mock('../../../src/services/companyService', () => ({
   updateProfileService: jest.fn(),
   getMyProfileService: jest.fn(),
   getPublicProfileService: jest.fn(),
+  uploadLogoService: jest.fn(),
 }));
 jest.mock('../../../src/middlewares', () => ({
   asyncHandler: jest.fn((fn) => fn),
@@ -17,14 +18,10 @@ describe('companyController - createProfile', () => {
     jest.clearAllMocks();
   });
 
-  test('deve criar o perfil da empresa com logo com sucesso.', async () => {
+  test('deve criar o perfil da empresa com sucesso.', async () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('logo-fake-content'),
-        originalname: 'logo.jpeg',
       },
       body: {
         companyData: {
@@ -51,7 +48,6 @@ describe('companyController - createProfile', () => {
       authUserId: 'user123',
       companyName: 'empresa',
       phone: '23765438972',
-      logoKey: 'company-profiles/user123/logo.jpeg',
       bio: 'bio fake',
       address: {
         companyId: 'user123',
@@ -73,65 +69,6 @@ describe('companyController - createProfile', () => {
     expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
     expect(companyService.createProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
-      mockReq.body.companyData,
-      mockReq.body.addressData,
-    );
-  });
-  test('deve criar o perfil da empresa sem logo com sucesso.', async () => {
-    const mockReq = {
-      user: {
-        id: 'user123',
-      },
-      file: undefined,
-      body: {
-        companyData: {
-          companyName: 'empresa',
-          phone: '23765438972',
-          bio: 'bio fake',
-        },
-        addressData: {
-          street: 'Rua',
-          number: '23',
-          complement: null,
-          neighborhood: 'Bairro',
-          city: 'Cidade',
-          state: 'FK',
-          zipCode: '34567876',
-        },
-      },
-    };
-    const mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const mockResponse = {
-      authUserId: 'user123',
-      companyName: 'empresa',
-      phone: '23765438972',
-      logoKey: null,
-      bio: 'bio fake',
-      address: {
-        companyId: 'user123',
-        street: 'Rua',
-        number: '23',
-        complement: null,
-        neighborhood: 'Bairro',
-        city: 'Cidade',
-        state: 'FK',
-        zipCode: '34567876',
-      },
-    };
-
-    companyService.createProfileService.mockResolvedValue(mockResponse);
-
-    await companyController.createProfile(mockReq, mockRes);
-
-    expect(mockRes.status).toHaveBeenCalledWith(201);
-    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
-    expect(companyService.createProfileService).toHaveBeenCalledWith(
-      mockReq.user.id,
-      mockReq.file,
       mockReq.body.companyData,
       mockReq.body.addressData,
     );
@@ -140,10 +77,6 @@ describe('companyController - createProfile', () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('logo-fake-content'),
-        originalname: 'logo.jpeg',
       },
       body: {
         companyData: {
@@ -179,9 +112,71 @@ describe('companyController - createProfile', () => {
     expect(mockRes.json).not.toHaveBeenCalled();
     expect(companyService.createProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
       mockReq.body.companyData,
       mockReq.body.addressData,
+    );
+  });
+});
+
+describe('companyController - uploadLogo', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve fazer upload da logo da empresa com sucesso.', async () => {
+    const mockReq = {
+      user: { id: 'user123' },
+      file: {
+        buffer: Buffer.from('logo-fake-content'),
+        originalname: 'logo.jpeg',
+      },
+    };
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const mockResponse = {
+      authUserId: mockReq.user.id,
+      logoKey: 'company-profiles/user123/logo.jpeg',
+    };
+
+    companyService.uploadLogoService.mockResolvedValue(mockResponse);
+
+    await companyController.uploadLogo(mockReq, mockRes);
+
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
+    expect(companyService.uploadLogoService).toHaveBeenCalledWith(
+      mockReq.user.id,
+      mockReq.file,
+    );
+  });
+  test('deve propagar o AppError retornado pelo uploadLogoService.', async () => {
+    const mockReq = {
+      user: { id: 'user123' },
+      file: {
+        buffer: Buffer.from('logo-fake-content'),
+        originalname: 'logo.jpeg',
+      },
+    };
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    companyService.uploadLogoService.mockRejectedValue(
+      new AppError('Perfil da empresa não encontrado.', 404),
+    );
+
+    await expect(
+      companyController.uploadLogo(mockReq, mockRes),
+    ).rejects.toThrow(AppError);
+
+    expect(mockRes.status).not.toHaveBeenCalled();
+    expect(mockRes.json).not.toHaveBeenCalled();
+    expect(companyService.uploadLogoService).toHaveBeenCalledWith(
+      mockReq.user.id,
+      mockReq.file,
     );
   });
 });
@@ -191,14 +186,10 @@ describe('companyController - updateProfile', () => {
     jest.clearAllMocks();
   });
 
-  test('deve atualizar perfil da empresa com logo com sucesso.', async () => {
+  test('deve atualizar perfil da empresa com sucesso.', async () => {
     const mockReq = {
       user: {
         id: 'user123',
-      },
-      file: {
-        buffer: Buffer.from('logo-fake-content'),
-        originalname: 'logo.jpeg',
       },
       body: {
         companyData: {
@@ -224,7 +215,6 @@ describe('companyController - updateProfile', () => {
     const mockResponse = {
       companyName: 'empresa',
       phone: '23765438972',
-      logoKey: 'company-profiles/user123/logo.jpeg',
       bio: 'bio fake',
       address: {
         street: 'Rua',
@@ -245,63 +235,6 @@ describe('companyController - updateProfile', () => {
     expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
     expect(companyService.updateProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
-      mockReq.body.companyData,
-      mockReq.body.addressData,
-    );
-  });
-  test('deve atualizar perfil da empresa sem logo com sucesso.', async () => {
-    const mockReq = {
-      user: {
-        id: 'user123',
-      },
-      file: undefined,
-      body: {
-        companyData: {
-          companyName: 'empresa',
-          phone: '23765438972',
-          bio: 'bio fake',
-        },
-        addressData: {
-          street: 'Rua',
-          number: '23',
-          complement: null,
-          neighborhood: 'Bairro',
-          city: 'Cidade',
-          state: 'FK',
-          zipCode: '34567876',
-        },
-      },
-    };
-    const mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const mockResponse = {
-      companyName: 'empresa',
-      phone: '23765438972',
-      logoKey: null,
-      bio: 'bio fake',
-      address: {
-        street: 'Rua',
-        number: '23',
-        complement: null,
-        neighborhood: 'Bairro',
-        city: 'Cidade',
-        state: 'FK',
-        zipCode: '34567876',
-      },
-    };
-
-    companyService.updateProfileService.mockResolvedValue(mockResponse);
-
-    await companyController.updateProfile(mockReq, mockRes);
-
-    expect(mockRes.status).toHaveBeenCalledWith(200);
-    expect(mockRes.json).toHaveBeenCalledWith(mockResponse);
-    expect(companyService.updateProfileService).toHaveBeenCalledWith(
-      mockReq.user.id,
-      mockReq.file,
       mockReq.body.companyData,
       mockReq.body.addressData,
     );
@@ -309,10 +242,6 @@ describe('companyController - updateProfile', () => {
   test('deve propagar o AppError retornado pelo updateProfileService.', async () => {
     const mockReq = {
       user: { id: 'user123' },
-      file: {
-        buffer: Buffer.from('logo-fake-content'),
-        originalname: 'logo.jpeg',
-      },
       body: {
         companyData: {
           companyName: 'empresa',
@@ -347,7 +276,6 @@ describe('companyController - updateProfile', () => {
     expect(mockRes.json).not.toHaveBeenCalled();
     expect(companyService.updateProfileService).toHaveBeenCalledWith(
       mockReq.user.id,
-      mockReq.file,
       mockReq.body.companyData,
       mockReq.body.addressData,
     );

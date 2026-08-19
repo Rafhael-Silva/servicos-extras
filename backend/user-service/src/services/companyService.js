@@ -63,7 +63,7 @@ const uploadLogoService = async (authUserId, fileData) => {
     await companyProfileRepository.findByAuthUserId(authUserId);
 
   if (!existingProfile) {
-    logger.warn('Empresa não encontrada.', { authUserId });
+    logger.warn('Perfil da empresa não encontrado.', { authUserId });
     throw new AppError('Perfil da empresa não encontrado.', 404);
   }
 
@@ -95,7 +95,7 @@ const updateProfileService = async (authUserId, companyData, addressData) => {
     await companyProfileRepository.findByAuthUserId(authUserId);
 
   if (!companyProfile) {
-    logger.warn('Empresa não encontrada.', { authUserId });
+    logger.warn('Perfil da empresa não encontrado.', { authUserId });
     throw new AppError('Perfil da empresa não encontrado.', 404);
   }
 

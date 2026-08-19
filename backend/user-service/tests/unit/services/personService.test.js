@@ -7,6 +7,7 @@ jest.mock('../../../src/repositories', () => ({
     getPublicProfile: jest.fn(),
     getMyProfile: jest.fn(),
     findByAuthUserId: jest.fn(),
+    updatePhoto: jest.fn(),
   },
   personAddressRepository: {
     create: jest.fn(),
@@ -37,13 +38,12 @@ const logger = require('../../../src/config/logger');
 const AppError = require('../../../errors/AppError');
 
 describe('personService - createProfileService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('deve criar o perfil do usuário com sucesso mas sem upload de foto', async () => {
+  test('deve criar o perfil do usuário com sucesso', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -60,7 +60,6 @@ describe('personService - createProfileService', () => {
     const mockDataProfile = {
       authUserId: mockAuthUserId,
       phone: mockProfileData.phone,
-      photoKey: null,
       bio: mockProfileData.bio,
     };
     const mockDataAddress = {
@@ -82,7 +81,6 @@ describe('personService - createProfileService', () => {
 
     const mockResult = await personService.createProfileService(
       mockAuthUserId,
-      mockFileData,
       mockProfileData,
       mockAddressData,
     );
@@ -90,82 +88,6 @@ describe('personService - createProfileService', () => {
     expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
       mockAuthUserId,
     );
-    expect(personProfileRepository.create).toHaveBeenCalledWith(
-      mockDataProfile,
-    );
-    expect(personAddressRepository.create).toHaveBeenCalledWith(
-      mockDataAddress,
-    );
-    expect(mockResult).toEqual({
-      ...mockDataProfile,
-      address: mockDataAddress,
-    });
-    expect(logger.info).toHaveBeenCalledWith(
-      'Perfil do usuário criado com sucesso.',
-      {
-        authUserId: mockAuthUserId,
-      },
-    );
-    expect(uploadFile).not.toHaveBeenCalled();
-  });
-  test('deve criar o perfil do usuário com upload de foto', async () => {
-    const mockAuthUserId = 'user123';
-    const mockKey = 'person-profiles/user123/photo.jpeg';
-    const mockPhotoKey = mockKey;
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
-    const mockProfileData = {
-      phone: '67998675431',
-      bio: null,
-    };
-    const mockAddressData = {
-      street: 'Rua fake',
-      number: ' 23',
-      complement: null,
-      neighborhood: 'Bairro fake',
-      city: 'Poços de Caldas',
-      state: 'MG',
-      zipCode: '37654178',
-    };
-    const mockDataProfile = {
-      authUserId: mockAuthUserId,
-      phone: mockProfileData.phone,
-      photoKey: mockPhotoKey,
-      bio: mockProfileData.bio,
-    };
-    const mockDataAddress = {
-      personId: mockAuthUserId,
-      street: mockAddressData.street,
-      number: mockAddressData.number,
-      complement: mockAddressData.complement,
-      neighborhood: mockAddressData.neighborhood,
-      city: mockAddressData.city,
-      state: mockAddressData.state,
-      zipCode: mockAddressData.zipCode,
-    };
-
-    personProfileRepository.findByAuthUserId.mockResolvedValue(null);
-
-    uploadFile.mockResolvedValue(mockKey);
-
-    personProfileRepository.create.mockResolvedValue(mockDataProfile);
-
-    personAddressRepository.create.mockResolvedValue(mockDataAddress);
-
-    const mockResult = await personService.createProfileService(
-      mockAuthUserId,
-      mockFileData,
-      mockProfileData,
-      mockAddressData,
-    );
-
-    expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
-      mockAuthUserId,
-    );
-    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
-    expect(uploadFile).toHaveBeenCalledTimes(1);
     expect(personProfileRepository.create).toHaveBeenCalledWith(
       mockDataProfile,
     );
@@ -185,10 +107,6 @@ describe('personService - createProfileService', () => {
   });
   test('deve gerar erro caso authUserId não for enviado', async () => {
     const mockAuthUserId = undefined;
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -206,7 +124,6 @@ describe('personService - createProfileService', () => {
     try {
       await personService.createProfileService(
         mockAuthUserId,
-        mockFileData,
         mockProfileData,
         mockAddressData,
       );
@@ -221,11 +138,6 @@ describe('personService - createProfileService', () => {
   });
   test('deve gerar erro caso o usuário já passua um perfil', async () => {
     const mockAuthUserId = 'user123';
-    const mockPhotoKey = 'person-profiles/user123/photo.jpeg';
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -242,13 +154,12 @@ describe('personService - createProfileService', () => {
 
     personProfileRepository.findByAuthUserId.mockResolvedValue({
       authUserId: mockAuthUserId,
-      photoKey: mockPhotoKey,
+      photoKey: null,
     });
 
     try {
       await personService.createProfileService(
         mockAuthUserId,
-        mockFileData,
         mockProfileData,
         mockAddressData,
       );
@@ -266,18 +177,162 @@ describe('personService - createProfileService', () => {
       'Tentativa de criar perfil já existente.',
       { authUserId: mockAuthUserId },
     );
+    expect(personProfileRepository.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('personService - uploadPhotoService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve fazer primeiro upload da foto do usuário com sucesso', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('image-fake-content'),
+      originalname: 'photo.jpeg',
+    };
+    const mockExistingProfile = {
+      authUserId: mockAuthUserId,
+      photoKey: null,
+    };
+    const mockKey = 'person-profiles/user123/photo.jpeg';
+    const mockPhotoKey = 'person-profiles/user123/photo.jpeg';
+    const mockUpdatedProfilePhoto = {
+      authUserId: mockAuthUserId,
+      photoKey: mockPhotoKey,
+    };
+
+    personProfileRepository.findByAuthUserId.mockResolvedValue(
+      mockExistingProfile,
+    );
+
+    uploadFile.mockResolvedValue(mockPhotoKey);
+
+    personProfileRepository.updatePhoto.mockResolvedValue(
+      mockUpdatedProfilePhoto,
+    );
+
+    const mockResult = await personService.uploadPhotoService(
+      mockAuthUserId,
+      mockFileData,
+    );
+
+    expect(mockResult).toEqual(mockUpdatedProfilePhoto);
+    expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
+    expect(deleteFile).not.toHaveBeenCalled();
+    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
+    expect(personProfileRepository.updatePhoto).toHaveBeenCalledWith(
+      mockAuthUserId,
+      mockPhotoKey,
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Foto do usuário carregada com sucesso.',
+      { authUserId: mockAuthUserId },
+    );
+  });
+  test('deve deletar foto antiga e fazer upload da nova foto do usuário com sucesso', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('image-fake-content'),
+      originalname: 'photo.jpeg',
+    };
+    const mockExistingProfile = {
+      authUserId: mockAuthUserId,
+      photoKey: 'person-profiles/user123/old-photo.jpeg',
+    };
+    const mockKey = 'person-profiles/user123/photo.jpeg';
+    const mockPhotoKey = 'person-profiles/user123/photo.jpeg';
+    const mockUpdatedProfilePhoto = {
+      authUserId: mockAuthUserId,
+      photoKey: mockPhotoKey,
+    };
+
+    personProfileRepository.findByAuthUserId.mockResolvedValue(
+      mockExistingProfile,
+    );
+
+    deleteFile.mockResolvedValue();
+
+    uploadFile.mockResolvedValue(mockPhotoKey);
+
+    personProfileRepository.updatePhoto.mockResolvedValue(
+      mockUpdatedProfilePhoto,
+    );
+
+    const mockResult = await personService.uploadPhotoService(
+      mockAuthUserId,
+      mockFileData,
+    );
+
+    expect(mockResult).toEqual(mockUpdatedProfilePhoto);
+    expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
+    expect(deleteFile).toHaveBeenCalledWith(mockExistingProfile.photoKey);
+    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
+    expect(personProfileRepository.updatePhoto).toHaveBeenCalledWith(
+      mockAuthUserId,
+      mockPhotoKey,
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Foto do usuário carregada com sucesso.',
+      { authUserId: mockAuthUserId },
+    );
+  });
+  test('deve gerar erro caso algum parâmetro não for enviado', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = undefined;
+
+    try {
+      await personService.uploadPhotoService(mockAuthUserId, mockFileData);
+
+      fail('Deveria encerrar aqui.');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.message).toBe('Dados inválidos.');
+    }
+
+    expect(personProfileRepository.findByAuthUserId).not.toHaveBeenCalled();
+  });
+  test('deve gerar erro caso perfil do usuário não seja encontrado', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('image-fake-content'),
+      originalname: 'photo.jpeg',
+    };
+
+    personProfileRepository.findByAuthUserId.mockResolvedValue(null);
+
+    try {
+      await personService.uploadPhotoService(mockAuthUserId, mockFileData);
+
+      fail('Deveria encerrar aqui.');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.message).toBe('Perfil do usuário não encontrado.');
+    }
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Perfil do usuário não encontrado.',
+      { authUserId: mockAuthUserId },
+    );
+    expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
     expect(uploadFile).not.toHaveBeenCalled();
   });
 });
 
 describe('personService - updateProfileService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('deve atualizar perfil do usuário com sucesso mas sem upload de foto', async () => {
+  test('deve atualizar perfil do usuário com sucesso', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -292,9 +347,7 @@ describe('personService - updateProfileService', () => {
       zipCode: '37654178',
     };
     const mockDataProfile = {
-      authUserId: mockAuthUserId,
       phone: mockProfileData.phone,
-      photoKey: null,
       bio: mockProfileData.bio,
     };
     const mockDataAddress = {
@@ -307,8 +360,8 @@ describe('personService - updateProfileService', () => {
       zipCode: mockAddressData.zipCode,
     };
     personProfileRepository.findByAuthUserId.mockResolvedValue({
-      authUserId: mockDataProfile.authUserId,
-      photoKey: mockDataProfile.photoKey,
+      authUserId: mockAuthUserId,
+      photoKey: null,
     });
 
     personProfileRepository.update.mockResolvedValue(mockDataProfile);
@@ -317,7 +370,6 @@ describe('personService - updateProfileService', () => {
 
     const mockResult = await personService.updateProfileService(
       mockAuthUserId,
-      mockFileData,
       mockProfileData,
       mockAddressData,
     );
@@ -328,97 +380,6 @@ describe('personService - updateProfileService', () => {
     expect(personProfileRepository.update).toHaveBeenCalledWith(
       mockAuthUserId,
       mockProfileData,
-    );
-    expect(personAddressRepository.update).toHaveBeenCalledWith(
-      mockAuthUserId,
-      mockAddressData,
-    );
-    expect(uploadFile).not.toHaveBeenCalled();
-    expect(mockResult).toEqual({
-      ...mockDataProfile,
-      address: mockDataAddress,
-    });
-    expect(logger.info).toHaveBeenCalledWith(
-      'Perfil do usuário atualizado com sucesso.',
-      {
-        authUserId: mockAuthUserId,
-      },
-    );
-  });
-  test('deve atualizar perfil do usuário com sucesso com upload de foto', async () => {
-    const mockAuthUserId = 'user123';
-    const mockOldFileKey = 'person-profiles/user123/old-photo.jpeg';
-    const mockKey = 'person-profiles/user123/photo.jpeg';
-    const mockPhotoKey = mockKey;
-    const mockPersonProfile = {
-      authUserId: mockAuthUserId,
-      photoKey: mockOldFileKey,
-    };
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
-    const mockProfileData = {
-      phone: '67998675431',
-      bio: null,
-    };
-    const mockAddressData = {
-      street: 'Rua fake',
-      number: ' 23',
-      complement: null,
-      neighborhood: 'Bairro fake',
-      city: 'Poços de Caldas',
-      state: 'MG',
-      zipCode: '37654178',
-    };
-    const mockUpdatedProfileData = {
-      phone: mockProfileData.phone,
-      bio: mockProfileData.bio,
-      photoKey: mockPhotoKey,
-    };
-    const mockDataProfile = {
-      authUserId: mockAuthUserId,
-      phone: mockProfileData.phone,
-      photoKey: mockPhotoKey,
-      bio: mockProfileData.bio,
-    };
-    const mockDataAddress = {
-      street: mockAddressData.street,
-      number: mockAddressData.number,
-      complement: mockAddressData.complement,
-      neighborhood: mockAddressData.neighborhood,
-      city: mockAddressData.city,
-      state: mockAddressData.state,
-      zipCode: mockAddressData.zipCode,
-    };
-
-    personProfileRepository.findByAuthUserId.mockResolvedValue(
-      mockPersonProfile,
-    );
-
-    deleteFile.mockResolvedValue();
-
-    uploadFile.mockResolvedValue(mockKey);
-
-    personProfileRepository.update.mockResolvedValue(mockDataProfile);
-
-    personAddressRepository.update.mockResolvedValue(mockDataAddress);
-
-    const mockResult = await personService.updateProfileService(
-      mockAuthUserId,
-      mockFileData,
-      mockProfileData,
-      mockAddressData,
-    );
-
-    expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
-      mockAuthUserId,
-    );
-    expect(deleteFile).toHaveBeenCalledWith(mockPersonProfile.photoKey);
-    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
-    expect(personProfileRepository.update).toHaveBeenCalledWith(
-      mockAuthUserId,
-      mockUpdatedProfileData,
     );
     expect(personAddressRepository.update).toHaveBeenCalledWith(
       mockAuthUserId,
@@ -437,10 +398,6 @@ describe('personService - updateProfileService', () => {
   });
   test('deve gerar erro caso authUserId não for enviado', async () => {
     const mockUserId = undefined;
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -458,7 +415,6 @@ describe('personService - updateProfileService', () => {
     try {
       await personService.updateProfileService(
         mockUserId,
-        mockFileData,
         mockProfileData,
         mockAddressData,
       );
@@ -473,10 +429,6 @@ describe('personService - updateProfileService', () => {
   });
   test('deve gerar erro caso perfil do usuário não seja encontrado', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = {
-      buffer: Buffer.from('fake-image-content'),
-      originalname: 'photo.jpeg',
-    };
     const mockProfileData = {
       phone: '67998675431',
       bio: null,
@@ -496,7 +448,6 @@ describe('personService - updateProfileService', () => {
     try {
       await personService.updateProfileService(
         mockAuthUserId,
-        mockFileData,
         mockProfileData,
         mockAddressData,
       );
@@ -514,13 +465,12 @@ describe('personService - updateProfileService', () => {
     expect(personProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
       mockAuthUserId,
     );
-    expect(deleteFile).not.toHaveBeenCalled();
-    expect(uploadFile).not.toHaveBeenCalled();
+    expect(personProfileRepository.update).not.toHaveBeenCalled();
   });
 });
 
 describe('personService - getMyProfileService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -625,7 +575,7 @@ describe('personService - getMyProfileService', () => {
 });
 
 describe('personService - getPublicProfileService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -705,7 +655,7 @@ describe('personService - getPublicProfileService', () => {
 });
 
 describe('personService - uploadCurriculumService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -883,7 +833,7 @@ describe('personService - uploadCurriculumService', () => {
 });
 
 describe('personService - createPlatformCurriculumService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -1060,7 +1010,7 @@ describe('personService - createPlatformCurriculumService', () => {
 });
 
 describe('personService - updatePlatformCurriculumService', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 

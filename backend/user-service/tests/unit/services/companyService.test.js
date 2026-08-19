@@ -7,6 +7,7 @@ jest.mock('../../../src/repositories', () => ({
     update: jest.fn(),
     getMyProfile: jest.fn(),
     getPublicProfile: jest.fn(),
+    updateLogo: jest.fn(),
   },
   companyAddressRepository: {
     create: jest.fn(),
@@ -34,9 +35,8 @@ describe('companyService - createProfileService', () => {
     jest.clearAllMocks();
   });
 
-  test('deve criar perfil da empresa com sucesso mas sem upload da logo', async () => {
+  test('deve criar perfil da empresa com sucesso', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -55,7 +55,6 @@ describe('companyService - createProfileService', () => {
       authUserId: mockAuthUserId,
       companyName: 'empresa',
       phone: '12456780965',
-      logoKey: null,
       bio: 'fake bio',
     };
     const mockDataAddress = {
@@ -77,7 +76,6 @@ describe('companyService - createProfileService', () => {
 
     const mockResult = await companyService.createProfileService(
       mockAuthUserId,
-      mockFileData,
       mockCompanyData,
       mockAddressData,
     );
@@ -86,81 +84,6 @@ describe('companyService - createProfileService', () => {
       ...mockDataCompany,
       address: mockDataAddress,
     });
-    expect(uploadFile).not.toHaveBeenCalled();
-    expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
-      mockAuthUserId,
-    );
-    expect(companyProfileRepository.create).toHaveBeenCalledWith(
-      mockDataCompany,
-    );
-    expect(companyAddressRepository.create).toHaveBeenCalledWith(
-      mockDataAddress,
-    );
-    expect(logger.info).toHaveBeenCalledWith(
-      'Perfil da empresa criado com sucesso.',
-      { authUserId: mockAuthUserId },
-    );
-  });
-  test('deve criar perfil da empresa com sucesso com upload da logo', async () => {
-    const mockAuthUserId = 'user123';
-    const mockKey = 'company-profiles/user123/logo.jpeg';
-    const mockLogoKey = mockKey;
-    const mockFileData = {
-      buffer: Buffer.from('logo-fake-content'),
-      originalname: 'logo.jpeg',
-    };
-    const mockCompanyData = {
-      companyName: 'empresa',
-      phone: '12456780965',
-      bio: 'fake bio',
-    };
-    const mockAddressData = {
-      street: 'Rua fake',
-      number: '12',
-      complement: null,
-      neighborhood: 'Bairro fake',
-      city: 'Cidade fake',
-      state: 'MG',
-      zipCode: '12345213',
-    };
-    const mockDataCompany = {
-      authUserId: mockAuthUserId,
-      companyName: 'empresa',
-      phone: '12456780965',
-      logoKey: mockLogoKey,
-      bio: 'fake bio',
-    };
-    const mockDataAddress = {
-      companyId: mockAuthUserId,
-      street: mockAddressData.street,
-      number: mockAddressData.number,
-      complement: mockAddressData.complement,
-      neighborhood: mockAddressData.neighborhood,
-      city: mockAddressData.city,
-      state: mockAddressData.state,
-      zipCode: mockAddressData.zipCode,
-    };
-
-    companyProfileRepository.findByAuthUserId.mockResolvedValue(null);
-
-    uploadFile.mockResolvedValue(mockLogoKey);
-
-    companyProfileRepository.create.mockResolvedValue(mockDataCompany);
-
-    companyAddressRepository.create.mockResolvedValue(mockDataAddress);
-
-    const mockResult = await companyService.createProfileService(
-      mockAuthUserId,
-      mockFileData,
-      mockCompanyData,
-      mockAddressData,
-    );
-
-    expect(mockResult).toEqual({
-      ...mockDataCompany,
-      address: mockDataAddress,
-    });
-    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
     expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
       mockAuthUserId,
     );
@@ -177,7 +100,6 @@ describe('companyService - createProfileService', () => {
   });
   test('deve gerar erro caso authUserId não for enviado', async () => {
     const mockAuthUserId = undefined;
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -196,7 +118,6 @@ describe('companyService - createProfileService', () => {
     try {
       await companyService.createProfileService(
         mockAuthUserId,
-        mockFileData,
         mockCompanyData,
         mockAddressData,
       );
@@ -211,7 +132,6 @@ describe('companyService - createProfileService', () => {
   });
   test('deve gerar erro caso a empresa já passua um perfil', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -238,7 +158,6 @@ describe('companyService - createProfileService', () => {
     try {
       await companyService.createProfileService(
         mockAuthUserId,
-        mockFileData,
         mockCompanyData,
         mockAddressData,
       );
@@ -256,6 +175,153 @@ describe('companyService - createProfileService', () => {
       'Tentativa de criar perfil já existente.',
       { authUserId: mockAuthUserId },
     );
+    expect(companyProfileRepository.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('companyService - uploadLogoService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('deve fazer primeiro upload da logo da empresa com sucesso', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('logo-fake-content'),
+      originalname: 'logo.jpeg',
+    };
+    const mockExistingProfile = {
+      authUserId: mockAuthUserId,
+      logoKey: null,
+    };
+    const mockKey = 'company-profiles/user123/logo.jpeg';
+    const mockLogoKey = 'company-profiles/user123/logo.jpeg';
+    const mockUpdatedProfileLogo = {
+      authUserId: mockAuthUserId,
+      logoKey: mockLogoKey,
+    };
+
+    companyProfileRepository.findByAuthUserId.mockResolvedValue(
+      mockExistingProfile,
+    );
+
+    uploadFile.mockResolvedValue(mockLogoKey);
+
+    companyProfileRepository.updateLogo.mockResolvedValue(
+      mockUpdatedProfileLogo,
+    );
+
+    const mockResult = await companyService.uploadLogoService(
+      mockAuthUserId,
+      mockFileData,
+    );
+
+    expect(mockResult).toEqual(mockUpdatedProfileLogo);
+    expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
+    expect(deleteFile).not.toHaveBeenCalled();
+    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
+    expect(companyProfileRepository.updateLogo).toHaveBeenCalledWith(
+      mockAuthUserId,
+      mockLogoKey,
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Logo da empresa carregada com sucesso.',
+      { authUserId: mockAuthUserId },
+    );
+  });
+  test('deve deletar logo antiga e fazer upload da nova logo da empresa com sucesso', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('logo-fake-content'),
+      originalname: 'logo.jpeg',
+    };
+    const mockExistingProfile = {
+      authUserId: mockAuthUserId,
+      logoKey: 'company-profiles/user123/old-logo.jpeg',
+    };
+    const mockKey = 'company-profiles/user123/logo.jpeg';
+    const mockLogoKey = 'company-profiles/user123/logo.jpeg';
+    const mockUpdatedProfileLogo = {
+      authUserId: mockAuthUserId,
+      logoKey: mockLogoKey,
+    };
+
+    companyProfileRepository.findByAuthUserId.mockResolvedValue(
+      mockExistingProfile,
+    );
+
+    deleteFile.mockResolvedValue();
+
+    uploadFile.mockResolvedValue(mockLogoKey);
+
+    companyProfileRepository.updateLogo.mockResolvedValue(
+      mockUpdatedProfileLogo,
+    );
+
+    const mockResult = await companyService.uploadLogoService(
+      mockAuthUserId,
+      mockFileData,
+    );
+
+    expect(mockResult).toEqual(mockUpdatedProfileLogo);
+    expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
+    expect(deleteFile).toHaveBeenCalledWith(mockExistingProfile.logoKey);
+    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
+    expect(companyProfileRepository.updateLogo).toHaveBeenCalledWith(
+      mockAuthUserId,
+      mockLogoKey,
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Logo da empresa carregada com sucesso.',
+      { authUserId: mockAuthUserId },
+    );
+  });
+  test('deve gerar erro caso algum parâmetro não for enviado', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = undefined;
+
+    try {
+      await companyService.uploadLogoService(mockAuthUserId, mockFileData);
+
+      fail('Deveria encerrar aqui.');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.message).toBe('Dados inválidos.');
+    }
+
+    expect(companyProfileRepository.findByAuthUserId).not.toHaveBeenCalled();
+  });
+  test('deve gerar erro caso perfil da empresa não seja encontrado', async () => {
+    const mockAuthUserId = 'user123';
+    const mockFileData = {
+      buffer: Buffer.from('logo-fake-content'),
+      originalname: 'logo.jpeg',
+    };
+
+    companyProfileRepository.findByAuthUserId.mockResolvedValue(null);
+
+    try {
+      await companyService.uploadLogoService(mockAuthUserId, mockFileData);
+
+      fail('Deveria encerrar aqui.');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.message).toBe('Perfil da empresa não encontrado.');
+    }
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Perfil da empresa não encontrado.',
+      {
+        authUserId: mockAuthUserId,
+      },
+    );
+    expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
+      mockAuthUserId,
+    );
     expect(uploadFile).not.toHaveBeenCalled();
   });
 });
@@ -265,9 +331,8 @@ describe('companyService - updateProfileService', () => {
     jest.clearAllMocks();
   });
 
-  test('deve atualizar perfil da empresa com sucesso mas sem upload da logo', async () => {
+  test('deve atualizar perfil da empresa com sucesso', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -303,7 +368,6 @@ describe('companyService - updateProfileService', () => {
     const mockUpdatedDataCompany = {
       companyName: mockCompanyData.companyName,
       phone: mockCompanyData.phone,
-      logoKey: null,
       bio: mockCompanyData.bio,
     };
 
@@ -317,7 +381,6 @@ describe('companyService - updateProfileService', () => {
 
     const mockResult = await companyService.updateProfileService(
       mockAuthUserId,
-      mockFileData,
       mockCompanyData,
       mockAddressData,
     );
@@ -326,90 +389,6 @@ describe('companyService - updateProfileService', () => {
       ...mockUpdatedDataCompany,
       address: mockDataAddress,
     });
-    expect(uploadFile).not.toHaveBeenCalled();
-    expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
-      mockAuthUserId,
-    );
-    expect(companyProfileRepository.update).toHaveBeenCalledWith(
-      mockAuthUserId,
-      mockDataCompany,
-    );
-    expect(companyAddressRepository.update).toHaveBeenCalledWith(
-      mockAuthUserId,
-      mockDataAddress,
-    );
-    expect(logger.info).toHaveBeenCalledWith(
-      'Perfil da empresa atualizado com sucesso.',
-      { authUserId: mockAuthUserId },
-    );
-  });
-  test('deve atualizar perfil da empresa com sucesso com upload da logo', async () => {
-    const mockAuthUserId = 'user123';
-    const mockKey = 'company-profiles/user123/logo.jpeg';
-    const mockOldLogoKey = 'company-profiles/user123/old-logo.jpeg';
-    const mockLogoKey = mockKey;
-    const mockFileData = {
-      buffer: Buffer.from('logo-fake-content'),
-      originalname: 'logo.jpeg',
-    };
-    const mockCompanyData = {
-      companyName: 'empresa',
-      phone: '12456780965',
-      bio: 'fake bio',
-    };
-    const mockAddressData = {
-      street: 'Rua fake',
-      number: '12',
-      complement: null,
-      neighborhood: 'Bairro fake',
-      city: 'Cidade fake',
-      state: 'MG',
-      zipCode: '12345213',
-    };
-    const mockDataCompany = {
-      companyName: mockCompanyData.companyName,
-      phone: mockCompanyData.phone,
-      logoKey: mockLogoKey,
-      bio: mockCompanyData.bio,
-    };
-    const mockDataAddress = {
-      street: mockAddressData.street,
-      number: mockAddressData.number,
-      complement: mockAddressData.complement,
-      neighborhood: mockAddressData.neighborhood,
-      city: mockAddressData.city,
-      state: mockAddressData.state,
-      zipCode: mockAddressData.zipCode,
-    };
-    const mockCompanyProfile = {
-      authUserId: mockAuthUserId,
-      logoKey: mockOldLogoKey,
-    };
-    companyProfileRepository.findByAuthUserId.mockResolvedValue(
-      mockCompanyProfile,
-    );
-
-    deleteFile.mockResolvedValue();
-
-    uploadFile.mockResolvedValue(mockLogoKey);
-
-    companyProfileRepository.update.mockResolvedValue(mockDataCompany);
-
-    companyAddressRepository.update.mockResolvedValue(mockDataAddress);
-
-    const mockResult = await companyService.updateProfileService(
-      mockAuthUserId,
-      mockFileData,
-      mockCompanyData,
-      mockAddressData,
-    );
-
-    expect(mockResult).toEqual({
-      ...mockDataCompany,
-      address: mockDataAddress,
-    });
-    expect(deleteFile).toHaveBeenCalledWith(mockCompanyProfile.logoKey);
-    expect(uploadFile).toHaveBeenCalledWith(mockFileData.buffer, mockKey);
     expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
       mockAuthUserId,
     );
@@ -428,7 +407,6 @@ describe('companyService - updateProfileService', () => {
   });
   test('deve gerar erro caso authUserId não for enviado', async () => {
     const mockAuthUserId = undefined;
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -447,7 +425,6 @@ describe('companyService - updateProfileService', () => {
     try {
       await companyService.updateProfileService(
         mockAuthUserId,
-        mockFileData,
         mockCompanyData,
         mockAddressData,
       );
@@ -462,7 +439,6 @@ describe('companyService - updateProfileService', () => {
   });
   test('deve gerar erro caso o perfil da empresa não seja encontrado', async () => {
     const mockAuthUserId = 'user123';
-    const mockFileData = undefined;
     const mockCompanyData = {
       companyName: 'empresa',
       phone: '12456780965',
@@ -483,7 +459,6 @@ describe('companyService - updateProfileService', () => {
     try {
       await companyService.updateProfileService(
         mockAuthUserId,
-        mockFileData,
         mockCompanyData,
         mockAddressData,
       );
@@ -497,10 +472,13 @@ describe('companyService - updateProfileService', () => {
     expect(companyProfileRepository.findByAuthUserId).toHaveBeenCalledWith(
       mockAuthUserId,
     );
-    expect(logger.warn).toHaveBeenCalledWith('Empresa não encontrada.', {
-      authUserId: mockAuthUserId,
-    });
-    expect(uploadFile).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Perfil da empresa não encontrado.',
+      {
+        authUserId: mockAuthUserId,
+      },
+    );
+    expect(companyProfileRepository.update).not.toHaveBeenCalled();
   });
 });
 
