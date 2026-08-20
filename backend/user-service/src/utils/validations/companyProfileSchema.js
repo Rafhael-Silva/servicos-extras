@@ -17,7 +17,7 @@ const companyProfileSchema = joi.object({
           'string.empty': 'O campo telefone não pode estar vazio.',
           'string.pattern.base': 'O campo telefone deve conter 11 dígitos.',
         }),
-      bio: joi.string().max(500).optional(),
+      bio: joi.string().max(500).optional().allow(null),
     })
     .required(),
   addressData: joi
@@ -30,7 +30,7 @@ const companyProfileSchema = joi.object({
         'any.required': 'O campo número é obrigatório.',
         'string.empty': 'O campo número não pode estar vazio.',
       }),
-      complement: joi.string().max(100).optional(),
+      complement: joi.string().max(100).optional().allow(null),
       neighborhood: joi.string().max(100).required().messages({
         'any.required': 'O campo bairro é obrigatório.',
         'string.empty': 'O campo bairro não pode estar vazio.',
