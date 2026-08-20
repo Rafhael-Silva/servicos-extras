@@ -15,7 +15,10 @@ const personProfileSchema = joi.object({
         }),
       bio: joi.string().max(500).optional().allow(null),
     })
-    .required(),
+    .required()
+    .messages({
+      'any.required': 'Os dados do perfil do usuário são obrigatórios.',
+    }),
   addressData: joi
     .object({
       street: joi.string().max(255).required().messages({
@@ -50,7 +53,10 @@ const personProfileSchema = joi.object({
           'string.pattern.base': 'O campo CEP deve conter 8 dígitos.',
         }),
     })
-    .required(),
+    .required()
+    .messages({
+      'any.required': 'Os dados do endereço do usuário são obrigatórios.',
+    }),
 });
 
 module.exports = personProfileSchema;
