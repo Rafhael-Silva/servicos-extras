@@ -3,7 +3,6 @@ const logger = require('../config/logger');
 
 const errorHandler = (error, req, res, next) => {
   if (error instanceof AppError) {
-    logger.warn(error.message);
     return res.status(error.statusCode).json({
       message: error.message,
     });
