@@ -21,11 +21,28 @@ const curriculumPersonSchema = joi.object({
           .trim()
           .required()
           .messages({ 'any.required': 'O campo cargo é obrigatório.' }),
-        startDate: joi.string().trim().required().messages({
-          'any.required': 'O campo data de início é obrigatório.',
-        }),
-        endDate: joi.string().trim().optional().allow(null),
-        description: joi.string().trim().max(2000).optional().allow(null),
+        startDate: joi
+          .string()
+          .pattern(/^(0[1-9]|1[0-2])\/\d{4}$/)
+          .required()
+          .messages({
+            'any.required': 'O campo data de início é obrigatório.',
+            'string.pattern.base': 'A data deve estar no formato MM/AAAA.',
+          }),
+        endDate: joi
+          .string()
+          .pattern(/^(0[1-9]|1[0-2])\/\d{4}$/)
+          .optional()
+          .allow(null),
+        description: joi
+          .string()
+          .trim()
+          .max(2000)
+          .optional()
+          .allow(null)
+          .messages({
+            'string.pattern.base': 'A data deve estar no formato MM/AAAA.',
+          }),
       }),
     )
     .optional()
