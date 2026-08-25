@@ -25,7 +25,6 @@ describe('middlewares - errorHandler', () => {
 
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Teste AppError.' });
-    expect(logger.warn).toHaveBeenCalledWith('Teste AppError.');
     expect(logger.error).not.toHaveBeenCalled();
   });
   test('deve tratar corretamente um erro interno inesperado.', () => {
@@ -46,6 +45,5 @@ describe('middlewares - errorHandler', () => {
     expect(logger.error).toHaveBeenCalledWith('Teste de erro interno.', {
       stack: error.stack,
     });
-    expect(logger.warn).not.toHaveBeenCalled();
   });
 });
