@@ -90,6 +90,11 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Comunicação entre serviços via HTTP.
 - Banco de dados independente por microserviço.
 
+## Tratamento de erros
+
+- Tratamento centralizado de erros por meio do errorHandler.
+- Gerenciamento de erros em operações assíncronas por meio do asyncHandler.
+
 ## Tecnologias utilizadas
 
 ### Linguagem e framework
@@ -134,7 +139,7 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 
 ### Logs e monitoramento
 
-- Logger personalizado
+- Winston (Logger personalizado)
 
 ### Automação e tarefas agendadas
 
