@@ -4,7 +4,7 @@ dotenv.config();
 const app = require('./app');
 const logger = require('./config/logger');
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3008;
 
 if (process.env.NODE_ENV !== 'test') {
   const server = app.listen(PORT, () => {
