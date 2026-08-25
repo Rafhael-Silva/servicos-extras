@@ -34,10 +34,26 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Functions: 89.77%
 - Lines: 98.67%
 
-### user-service (Em desenvolvimento)
+### user-service (Concluído)
 
 - Gerencia dados e perfis dos usuários (candidatos e recrutadores).
 - Armazena informações pessoais e perfil do usuário.
+
+#### Funcionalidades implementadas:
+
+- Criação e atualização de perfis
+- Consulta de perfil
+- Criação e atualização de currículos pela plataforma
+- Upload de arquivos (Foto/Logo/Currículo)
+- Testes unitários
+- Testes de integração
+
+#### Cobertura de testes:
+
+- Statements: 100%
+- Branches: 99.08%
+- Functions: 100%
+- Lines: 100%
 
 ### job-service (Não iniciado)
 
@@ -59,7 +75,7 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Processa pagamentos e transações financeiras.
 - Não armazena dados pessoais.
 
-### gateway (Não iniciado)
+### gateway (Iniciado)
 
 - API Gateway responsável por rotear requisições para os microserviços.
 - Controla autenticação básica, rate limiting e logs.
@@ -72,7 +88,7 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Arquitetura baseada em microserviços.
 - APIs REST.
 - Comunicação entre serviços via HTTP.
-- Banco de dados independente por microserviço.67
+- Banco de dados independente por microserviço.
 
 ## Tecnologias utilizadas
 
