@@ -16,7 +16,7 @@ const authenticateToken = (req, res, next) => {
 
     req.user = {
       id: decoded.id,
-      role: decoded.role,
+      accountType: decoded.accountType,
     };
 
     return next();
@@ -33,9 +33,7 @@ const authenticateToken = (req, res, next) => {
       });
     }
 
-    return res.status(500).json({
-      message: 'Ocorreu um erro inesperado no servidor.',
-    });
+    return next(error);
   }
 };
 

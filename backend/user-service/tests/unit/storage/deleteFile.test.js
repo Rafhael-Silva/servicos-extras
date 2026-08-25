@@ -1,18 +1,18 @@
 jest.mock('@aws-sdk/client-s3');
-jest.mock('../../../src/config/storage');
+jest.mock('../../../src/config/s3Client');
 jest.mock('../../../src/config/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
 }));
 
-const deleteFile = require('../../../src/services/deleteFileService');
+const deleteFile = require('../../../src/storage/deleteFile');
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../../../src/config/storage');
+const s3Client = require('../../../src/config/s3Client');
 const logger = require('../../../src/config/logger');
 const AppError = require('../../../errors/AppError');
 
-describe('deleteFileService', () => {
+describe('deleteFile', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

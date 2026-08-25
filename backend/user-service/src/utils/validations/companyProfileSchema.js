@@ -1,0 +1,66 @@
+const joi = require('joi');
+
+const companyProfileSchema = joi.object({
+  companyData: joi
+    .object({
+      companyName: joi.string().max(150).required().messages({
+        'any.required': 'O campo nome da empresa é obrigatório.',
+        'string.empty': 'O campo nome da empresa não pode estar vazio.',
+      }),
+      phone: joi
+        .string()
+        .trim()
+        .pattern(/^\d{11}$/)
+        .required()
+        .messages({
+          'any.required': 'O campo telefone é obrigatório.',
+          'string.empty': 'O campo telefone não pode estar vazio.',
+          'string.pattern.base': 'O campo telefone deve conter 11 dígitos.',
+        }),
+      bio: joi.string().max(500).optional().allow(null),
+    })
+    .required()
+    .messages({
+      'any.required': 'Os dados do perfil da empresa são obrigatórios.',
+    }),
+  addressData: joi
+    .object({
+      street: joi.string().max(255).required().messages({
+        'any.required': 'O campo rua é obrigatório.',
+        'string.empty': 'O campo rua não pode estar vazio.',
+      }),
+      number: joi.string().max(20).required().messages({
+        'any.required': 'O campo número é obrigatório.',
+        'string.empty': 'O campo número não pode estar vazio.',
+      }),
+      complement: joi.string().max(100).optional().allow(null),
+      neighborhood: joi.string().max(100).required().messages({
+        'any.required': 'O campo bairro é obrigatório.',
+        'string.empty': 'O campo bairro não pode estar vazio.',
+      }),
+      city: joi.string().max(100).required().messages({
+        'any.required': 'O campo cidade é obrigatório.',
+        'string.empty': 'O campo cidade não pode estar vazio.',
+      }),
+      state: joi.string().length(2).uppercase().required().messages({
+        'any.required': 'O campo estado é obrigatório.',
+        'string.empty': 'O campo estado não pode estar vazio.',
+        'string.length': 'O campo estado deve conter 2 caracteres.',
+      }),
+      zipCode: joi
+        .string()
+        .pattern(/^\d{8}$/)
+        .required()
+        .messages({
+          'any.required': 'O campo CEP é obrigatório.',
+          'string.empty': 'O campo CEP não pode estar vazio.',
+          'string.pattern.base': 'O campo CEP deve conter 8 dígitos.',
+        }),
+    })
+    .required()
+    .messages({
+      'any.required': 'Os dados do endereço da empresa são obrigatórios.',
+    }),
+});
+
+module.exports = companyProfileSchema;

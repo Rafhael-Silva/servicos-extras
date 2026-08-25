@@ -8,16 +8,16 @@ const startLoginSchema = joi.object({
     .email()
     .required()
     .messages({
-      'any.required': 'O e-mail é obrigatório.',
+      'any.required': 'O campo e-mail é obrigatório.',
       'string.email': 'O e-mail informado não é válido.',
-      'string.empty': 'O e-mail não pode estar vazio.',
+      'string.empty': 'O campo e-mail não pode estar vazio.',
       'string.pattern.base': 'O e-mail deve conter apenas caracteres válidos.',
     }),
 
   password: joi.string().min(6).required().messages({
-    'any.required': 'A senha é obrigatória.',
-    'string.empty': 'A senha não pode estar vazia.',
-    'string.min': 'A senha deve ter no mínimo 6 caracteres.',
+    'any.required': 'O campo da senha é obrigatório.',
+    'string.empty': 'O campo da senha não pode estar vazio.',
+    'string.min': 'A senha deve conter no mínimo 6 caracteres.',
   }),
 });
 

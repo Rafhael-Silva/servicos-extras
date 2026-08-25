@@ -1,50 +1,84 @@
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../middlewares/authenticateToken');
-const upload = require('../middlewares/upload');
-const validateSchema = require('../middlewares/validateSchema');
+const { authenticateToken, upload, validateSchema } = require('../middlewares');
 const {
-  profileUserSchema,
-  curriculumUserSchema,
+  personProfileSchema,
+  curriculumPersonSchema,
+  companyProfileSchema,
 } = require('../utils/validations');
-const userController = require('../controllers/userController');
+const personController = require('../controllers/personController');
+const companyController = require('../controllers/companyController');
 
 // Criar, atualizar e buscar perfil do usuário
 router.post(
-  '/profile',
+  '/person',
   authenticateToken,
-  upload.single('photo'),
-  validateSchema(profileUserSchema),
-  userController.createProfile,
+  validateSchema(personProfileSchema),
+  personController.createProfile,
 );
 router.put(
-  '/profile',
+  '/person/photo',
   authenticateToken,
   upload.single('photo'),
-  validateSchema(profileUserSchema),
-  userController.updateProfile,
+  personController.uploadPhoto,
 );
-router.get('/me', authenticateToken, userController.me);
-router.get('/profile/:userId', authenticateToken, userController.getProfile);
+router.put(
+  '/person',
+  authenticateToken,
+  validateSchema(personProfileSchema),
+  personController.updateProfile,
+);
+router.get('/person/me', authenticateToken, personController.myProfile);
+router.get(
+  '/person/:personId',
+  authenticateToken,
+  personController.publicProfile,
+);
 
 // Upload, criar e atualizar curriculo
 router.put(
   '/curriculum/upload',
   authenticateToken,
   upload.single('curriculum'),
-  userController.uploadCurriculum,
+  personController.uploadCurriculum,
 );
 router.post(
   '/curriculum',
   authenticateToken,
-  validateSchema(curriculumUserSchema),
-  userController.createPlatformCurriculum,
+  validateSchema(curriculumPersonSchema),
+  personController.createPlatformCurriculum,
 );
 router.put(
   '/curriculum',
   authenticateToken,
-  validateSchema(curriculumUserSchema),
-  userController.updatePlatformCurriculum,
+  validateSchema(curriculumPersonSchema),
+  personController.updatePlatformCurriculum,
+);
+
+// Criar, atualizar e buscar perfil da empresa
+router.post(
+  '/company',
+  authenticateToken,
+  validateSchema(companyProfileSchema),
+  companyController.createProfile,
+);
+router.put(
+  '/company/logo',
+  authenticateToken,
+  upload.single('logo'),
+  companyController.uploadLogo,
+);
+router.put(
+  '/company',
+  authenticateToken,
+  validateSchema(companyProfileSchema),
+  companyController.updateProfile,
+);
+router.get('/company/me', authenticateToken, companyController.myProfile);
+router.get(
+  '/company/:companyId',
+  authenticateToken,
+  companyController.publicProfile,
 );
 
 module.exports = router;

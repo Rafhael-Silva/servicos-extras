@@ -9,9 +9,9 @@ const verifyUserCodeSchema = joi.object({
     .email()
     .required()
     .messages({
-      'any.required': 'O e-mail é obrigatório.',
+      'any.required': 'O campo e-mail é obrigatório.',
       'string.email': 'O e-mail informado não é válido.',
-      'string.empty': 'O e-mail não pode estar vazio.',
+      'string.empty': 'O campo e-mail não pode estar vazio.',
       'string.pattern.base': 'O e-mail deve conter apenas caracteres válidos.',
     }),
   code: joi
@@ -23,8 +23,8 @@ const verifyUserCodeSchema = joi.object({
     .messages({
       'string.length': 'O código deve conter 6 dígitos.',
       'string.pattern.base': 'O código deve conter apenas números.',
-      'any.required': 'Código de verificação é obrigatório.',
-      'string.empty': 'O código não pode estar vazio.',
+      'any.required': 'O campo do código de verificação é obrigatório.',
+      'string.empty': 'O campo do código de verificação não pode estar vazio.',
     }),
   type: joi
     .string()
@@ -32,8 +32,8 @@ const verifyUserCodeSchema = joi.object({
     .valid(...Object.values(VerificationType))
     .required()
     .messages({
-      'any.required': 'Tipo de verificação é obrigatório.',
-      'any.only': 'O tipo informado é inválido.',
+      'any.required': 'O tipo do código de verificação é obrigatório.',
+      'any.only': 'O tipo do código de verificação informado é inválido.',
     }),
 });
 

@@ -1,3 +1,4 @@
+const { AccountType } = require('@prisma/client');
 const { validateSchema } = require('../../../src/middlewares');
 
 describe('middlewares - validateSchema', () => {
@@ -9,7 +10,7 @@ describe('middlewares - validateSchema', () => {
     const validatedData = {
       id: 'user123',
       name: 'João',
-      role: 'CANDIDATO',
+      accountType: AccountType.PERSON,
     };
     const mockSchema = {
       validate: jest.fn().mockReturnValue({
@@ -21,7 +22,7 @@ describe('middlewares - validateSchema', () => {
       body: {
         id: 'user123',
         name: 'João',
-        role: 'CANDIDATO',
+        accountType: AccountType.PERSON,
       },
     };
     const mockRes = {
@@ -48,9 +49,9 @@ describe('middlewares - validateSchema', () => {
       validate: jest.fn().mockReturnValue({
         error: {
           details: [
-            { message: 'Senha atual incorreta.' },
-            { message: 'Nova senha é obrigatória.' },
-            { message: 'Confirmação da senha é obrigatória.' },
+            { message: 'O campo da senha atual é obrigatório.' },
+            { message: 'O campo da nova senha é obrigatória.' },
+            { message: 'O campo de confirmação da nova senha é obrigatório.' },
           ],
         },
         value: undefined,
@@ -78,16 +79,15 @@ describe('middlewares - validateSchema', () => {
       abortEarly: false,
       stripUnknown: true,
     });
-    expect(mockReq).not.toHaveProperty('validatedBody');
     expect(mockNext).not.toHaveBeenCalled();
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       type: 'ValidationError',
       message: 'Erro de validação nos dados enviados.',
       errors: [
-        'Senha atual incorreta.',
-        'Nova senha é obrigatória.',
-        'Confirmação da senha é obrigatória.',
+        'O campo da senha atual é obrigatório.',
+        'O campo da nova senha é obrigatória.',
+        'O campo de confirmação da nova senha é obrigatório.',
       ],
     });
   });

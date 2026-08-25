@@ -9,9 +9,9 @@ const resendCodeSchema = joi.object({
     .email()
     .required()
     .messages({
-      'any.required': 'O e-mail é obrigatório.',
+      'any.required': 'O campo e-mail é obrigatório.',
       'string.email': 'O e-mail informado não é válido.',
-      'string.empty': 'O e-mail não pode estar vazio.',
+      'string.empty': 'O campo e-mail não pode estar vazio.',
       'string.pattern.base': 'O e-mail deve conter apenas caracteres válidos.',
     }),
   type: joi
@@ -20,8 +20,8 @@ const resendCodeSchema = joi.object({
     .valid(...Object.values(VerificationType))
     .required()
     .messages({
-      'any.required': 'Tipo de verificação é obrigatório.',
-      'any.only': 'O tipo informado é inválido.',
+      'any.required': 'O tipo do código de verificação é obrigatório.',
+      'any.only': 'O tipo do código de verificação informado é inválido.',
     }),
 });
 

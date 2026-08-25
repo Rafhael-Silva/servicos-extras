@@ -133,7 +133,7 @@ describe('authRoutes - POST/register', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['CNPJ é obrigatório para empresas.'],
+      errors: ['O campo CNPJ é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -151,7 +151,7 @@ describe('authRoutes - POST/register', () => {
     expect(response.body).toEqual({
       errors: [
         'CPF não é permitido para empresas.',
-        'CNPJ é obrigatório para empresas.',
+        'O campo CNPJ é obrigatório.',
       ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
@@ -170,7 +170,7 @@ describe('authRoutes - POST/register', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       errors: [
-        'CPF é obrigatório para pessoas físicas.',
+        'O campo CPF é obrigatório.',
         'CNPJ não é permitido para pessoas físicas.',
       ],
       message: 'Erro de validação nos dados enviados.',
@@ -205,7 +205,7 @@ describe('authRoutes - POST/register', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['A senha deve ter no mínimo 6 caracteres.'],
+      errors: ['A senha deve conter no mínimo 6 caracteres.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -312,7 +312,7 @@ describe('authRoutes - POST/verify-email', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['Token é obrigatório.'],
+      errors: ['O token de verificação é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -400,7 +400,7 @@ describe('authRoutes - POST/resend-code', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['Tipo de verificação é obrigatório.'],
+      errors: ['O tipo do código de verificação é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -474,8 +474,8 @@ describe('authRoutes - POST/verify-code', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       errors: [
-        'Código de verificação é obrigatório.',
-        'Tipo de verificação é obrigatório.',
+        'O campo do código de verificação é obrigatório.',
+        'O tipo do código de verificação é obrigatório.',
       ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
@@ -544,7 +544,7 @@ describe('authRoutes - POST/start-login', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['A senha é obrigatória.'],
+      errors: ['O campo da senha é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -637,7 +637,7 @@ describe('authRoutes - POST/finalize-login', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['Token é obrigatório.'],
+      errors: ['O token é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -925,7 +925,7 @@ describe('authRoutes - POST/forgot-password', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      errors: ['O e-mail é obrigatório.'],
+      errors: ['O campo e-mail é obrigatório.'],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
     });
@@ -1015,9 +1015,9 @@ describe('authRoutes - POST/reset-password', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       errors: [
-        'Token de redefinição é obrigatório.',
-        'A nova senha é obrigatória.',
-        'A confirmação da nova senha é obrigatória.',
+        'O token de redefinição de senha é obrigatório.',
+        'O campo da nova senha é obrigatório.',
+        'O campo de confirmação da nova senha é obrigatório.',
       ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',
@@ -1178,9 +1178,9 @@ describe('authRoutes - PATCH/change-password', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       errors: [
-        'A senha atual é obrigatória.',
-        'A nova senha é obrigatória.',
-        'A confirmação da nova senha é obrigatória.',
+        'O campo da senha atual é obrigatório.',
+        'O campo da nova senha é obrigatório.',
+        'O campo de confirmação da nova senha é obrigatório.',
       ],
       message: 'Erro de validação nos dados enviados.',
       type: 'ValidationError',

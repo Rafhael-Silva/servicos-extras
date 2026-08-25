@@ -18,6 +18,7 @@ const fileFilter = (req, file, cb) => {
     cb(
       new AppError(
         'Tipo de arquivo inválido. Apenas PDF, DOC, DOCX, JPEG e PNG são permitidos!',
+        400,
       ),
       false,
     );

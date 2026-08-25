@@ -17,33 +17,75 @@ enum CurriculumType {
   PLATFORM
 }
 
-// -- User Profile Model --
-model UserProfile {
-  authUserId String @id
-  phone String @unique @db.VarChar(20)
-  photoKey String?
-  bio String? @db.VarChar(500)
-  city String @db.VarChar(100)
-  state String @db.VarChar(2)
+// -- Person Profile Model --
+model PersonProfile {
+  authUserId String         @id
+  phone      String         @unique @db.VarChar(20)
+  photoKey   String?
+  bio        String?        @db.VarChar(500)
+  address    PersonAddress?
   curriculum Curriculum?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+// -- Person Address Model --
+model PersonAddress {
+  personId     String   @id
+  street       String   @db.VarChar(255)
+  number       String   @db.VarChar(20)
+  complement   String?  @db.VarChar(100)
+  neighborhood String   @db.VarChar(100)
+  city         String   @db.VarChar(100)
+  state        String   @db.VarChar(2)
+  zipCode      String   @db.VarChar(15)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  person PersonProfile @relation(fields: [personId], references: [authUserId], onDelete: Cascade)
 }
 
 // -- Curriculum Model --
 model Curriculum {
-  userId String @id
-  type CurriculumType
-  fileKey String?
+  personId            String         @id
+  type                CurriculumType
+  fileKey             String?
   professionalSummary String?
-  experiences Json?
-  educations Json?
-  courses Json?
-  skills Json?
-  observations String?
+  experiences         Json?
+  educations          Json?
+  courses             Json?
+  skills              Json?
+  observations        String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
-  user UserProfile @relation(fields: [userId], references: [authUserId], onDelete: Cascade)
+  person PersonProfile @relation(fields: [personId], references: [authUserId], onDelete: Cascade)
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// -- Company Profile Model --
+model CompanyProfile {
+  authUserId  String          @id
+  companyName String          @db.VarChar(150)
+  phone       String          @unique @db.VarChar(20)
+  logoKey     String?
+  bio         String?         @db.VarChar(500)
+  address     CompanyAddress?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// -- Company Address Model --
+model CompanyAddress {
+  companyId    String   @id
+  street       String   @db.VarChar(255)
+  number       String   @db.VarChar(20)
+  complement   String?  @db.VarChar(100)
+  neighborhood String   @db.VarChar(100)
+  city         String   @db.VarChar(100)
+  state        String   @db.VarChar(2)
+  zipCode      String   @db.VarChar(15)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company CompanyProfile @relation(fields: [companyId], references: [authUserId], onDelete: Cascade)
 }
