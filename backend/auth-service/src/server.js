@@ -1,5 +1,7 @@
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+});
 
 const app = require('./app');
 const startCleanupJobs = require('./job/startCleanupJobs');
