@@ -4,12 +4,13 @@ const {
 } = require('http-proxy-middleware');
 const logger = require('../config/logger');
 
-const createProxy = (urlService) => {
+const createProxy = (urlService, servicePath) => {
   return createProxyMiddleware({
     target: urlService,
     changeOrigin: true,
     timeout: 30000,
     proxyTimeout: 30000,
+    pathRewrite: (path) => `${servicePath}${path}`,
     on: {
       error: (error, req, res, target) => {
         logger.error('Erro de conexão com serviço.', { error });

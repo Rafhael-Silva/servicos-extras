@@ -19,7 +19,7 @@ describe('proxy - createProxy', () => {
   });
 
   test('deve criar o proxy com as configurações corretas.', () => {
-    createProxy(process.env.URL_AUTH_SERVICE);
+    createProxy(process.env.URL_AUTH_SERVICE, '/api/auth');
 
     const config = createProxyMiddleware.mock.calls[0][0];
 
@@ -27,9 +27,10 @@ describe('proxy - createProxy', () => {
     expect(config.changeOrigin).toBe(true);
     expect(config.timeout).toBe(30000);
     expect(config.proxyTimeout).toBe(30000);
+    expect(config.pathRewrite('/start-login')).toBe('/api/auth/start-login');
   });
   test('deve retornar 503 quando ocorrer erro de conexão com o serviço.', () => {
-    createProxy(process.env.URL_AUTH_SERVICE);
+    createProxy(process.env.URL_AUTH_SERVICE, '/api/auth');
 
     const config = createProxyMiddleware.mock.calls[0][0];
 
@@ -54,7 +55,7 @@ describe('proxy - createProxy', () => {
     });
   });
   test('deve configurar o fixRequestBody no proxyReq.', () => {
-    createProxy(process.env.URL_AUTH_SERVICE);
+    createProxy(process.env.URL_AUTH_SERVICE, '/api/auth');
 
     const config = createProxyMiddleware.mock.calls[0][0];
 
