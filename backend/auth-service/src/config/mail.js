@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport(
-  process.env.NODE_ENV === 'test'
+  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'integration'
     ? {
         host: process.env.EMAIL_HOST,
         port: Number(process.env.EMAIL_PORT),

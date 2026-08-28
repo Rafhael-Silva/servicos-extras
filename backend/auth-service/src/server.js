@@ -1,6 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config({
-  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+  path:
+    process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'integration'
+      ? '.env.test'
+      : '.env',
 });
 
 const app = require('./app');
