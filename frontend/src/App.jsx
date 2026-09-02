@@ -1,10 +1,12 @@
+import AppProviders from './app/providers/AppProviders';
+import AppRouter from './app/router/AppRouter';
+
 function App() {
   return (
-   <main>
-    <h1>Serviços Extras</h1>
-    <p>Plataforma de gerenciamento de serviços extras</p>
-   </main>
-  )
+    <AppProviders>
+      <AppRouter />
+    </AppProviders>
+  );
 }
 
-export default App
+export default App;
