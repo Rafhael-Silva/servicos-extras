@@ -1,5 +1,7 @@
+import SessionProvider from './SessionProvider';
+
 function AppProviders({ children }) {
-  return children;
+  return <SessionProvider>{children}</SessionProvider>;
 }
 
 export default AppProviders;
