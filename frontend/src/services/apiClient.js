@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { requestInterceptor } from './interceptors/requestInterceptor';
 import {
   responseInterceptor,
   responseErrorInterceptor,
@@ -9,6 +10,8 @@ const apiClient = axios.create({
   timeout: 10000,
   withCredentials: true,
 });
+
+apiClient.interceptors.request.use(requestInterceptor);
 
 apiClient.interceptors.response.use(
   responseInterceptor,
