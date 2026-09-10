@@ -10,8 +10,6 @@ async function initialize() {
   if (!currentAccessToken) {
     const newAccessToken = await refreshSession();
 
-    sessionManager.setAccessToken(newAccessToken);
-
     return newAccessToken;
   }
 
@@ -35,8 +33,6 @@ async function checkAndRefreshSession() {
     refreshPromise = (async () => {
       try {
         const newAccessToken = await refreshSession();
-
-        sessionManager.setAccessToken(newAccessToken);
 
         return newAccessToken;
       } finally {
