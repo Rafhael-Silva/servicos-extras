@@ -11,7 +11,7 @@ async function register({
   termsAccepted,
   birthDate,
 }) {
-  const response = await apiClient.post('/register', {
+  const response = await apiClient.post('/api/auth/register', {
     name,
     email,
     password,
@@ -25,8 +25,10 @@ async function register({
   return response.data.message;
 }
 
-async function verifyEmail({ verificationToken }) {
-  const response = await apiClient.post('/verify-email', { verificationToken });
+async function verifyEmail(verificationToken) {
+  const response = await apiClient.post('/api/auth/verify-email', {
+    verificationToken,
+  });
 
   sessionManager.setAccessToken(response.data.accessToken);
 
@@ -38,13 +40,20 @@ async function verifyEmail({ verificationToken }) {
 }
 
 async function resendCode({ email, type }) {
-  const response = await apiClient.post('/resend-code', { email, type });
+  const response = await apiClient.post('/api/auth/resend-code', {
+    email,
+    type,
+  });
 
   return response.data.message;
 }
 
 async function verifyCode({ email, code, type }) {
-  const response = await apiClient.post('/verify-code', { email, code, type });
+  const response = await apiClient.post('/api/auth/verify-code', {
+    email,
+    code,
+    type,
+  });
 
   return {
     verificationToken: response.data.verificationToken,
@@ -53,13 +62,16 @@ async function verifyCode({ email, code, type }) {
 }
 
 async function startLogin({ email, password }) {
-  const response = await apiClient.post('/start-login', { email, password });
+  const response = await apiClient.post('/api/auth/start-login', {
+    email,
+    password,
+  });
 
   return response.data.message;
 }
 
-async function finalizeLogin({ verificationToken }) {
-  const response = await apiClient.post('/finalize-login', {
+async function finalizeLogin(verificationToken) {
+  const response = await apiClient.post('/api/auth/finalize-login', {
     verificationToken,
   });
 
@@ -73,7 +85,7 @@ async function finalizeLogin({ verificationToken }) {
 }
 
 async function logout() {
-  const response = await apiClient.post('/logout');
+  const response = await apiClient.post('/api/auth/logout');
 
   sessionManager.clearAccessToken();
 
@@ -81,21 +93,21 @@ async function logout() {
 }
 
 async function refreshSession() {
-  const response = await apiClient.post('/refresh-token');
+  const response = await apiClient.post('/api/auth/refresh-token');
 
   sessionManager.setAccessToken(response.data.accessToken);
 
   return response.data.accessToken;
 }
 
-async function forgotPassword({ email }) {
-  const response = await apiClient.post('/forgot-password', { email });
+async function forgotPassword(email) {
+  const response = await apiClient.post('/api/auth/forgot-password', { email });
 
   return response.data.message;
 }
 
 async function resetPassword({ verificationToken, newPassword }) {
-  const response = await apiClient.post('/reset-password', {
+  const response = await apiClient.post('/api/auth/reset-password', {
     verificationToken,
     newPassword,
   });
@@ -104,7 +116,7 @@ async function resetPassword({ verificationToken, newPassword }) {
 }
 
 async function changePassword({ currentPassword, newPassword }) {
-  const response = await apiClient.patch('/change-password', {
+  const response = await apiClient.patch('/api/auth/change-password', {
     currentPassword,
     newPassword,
   });
@@ -113,7 +125,7 @@ async function changePassword({ currentPassword, newPassword }) {
 }
 
 async function me() {
-  const response = await apiClient.get('/me');
+  const response = await apiClient.get('/api/auth/me');
 
   return {
     id: response.data.id,
