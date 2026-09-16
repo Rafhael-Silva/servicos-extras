@@ -3,6 +3,7 @@ const INITIALIZING = 'initializing';
 const AUTHENTICATED = 'authenticated';
 const UNAUTHENTICATED = 'unauthenticated';
 const SESSION_ERROR = 'sessionError';
+const REMEMBERED_EMAIL_KEY = 'rememberedEmail';
 
 export {
   REFRESH_BEFORE_EXPIRATION,
@@ -10,4 +11,5 @@ export {
   AUTHENTICATED,
   UNAUTHENTICATED,
   SESSION_ERROR,
+  REMEMBERED_EMAIL_KEY,
 };
