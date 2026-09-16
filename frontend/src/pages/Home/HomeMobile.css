@@ -80,6 +80,16 @@
   align-items: center;
 }
 
+.home-mobile .form-options a {
+  transition:
+    color 0,
+    2s ease;
+}
+
+.home-mobile .form-options a:hover {
+  color: rgb(2, 121, 8);
+}
+
 .home-mobile .form-options label {
   display: flex;
   align-items: center;
@@ -142,4 +152,11 @@
   text-decoration: none;
   font-size: 14px;
   margin-top: auto;
+  transition:
+    color 0,
+    2s ease;
+}
+
+.home-mobile .about-link:hover {
+  color: rgb(2, 121, 8);
 }
