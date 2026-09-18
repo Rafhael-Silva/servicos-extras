@@ -1,62 +1,90 @@
-.home-mobile {
+.home-desktop {
   min-height: 100dvh;
   font-family: 'Segoe UI', sans-serif;
   background-color: rgb(162, 252, 159);
 }
 
-.home-mobile header {
+.home-desktop main {
+  display: flex;
   width: 100%;
-  text-align: center;
 }
 
-.home-mobile header img {
-  max-width: 70%;
-  height: auto;
-}
-
-.home-mobile main {
-  min-height: 50dvh;
+.home-desktop .home-intro {
+  width: 60%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.home-mobile form {
+.home-desktop .home-intro img {
+  width: 50%;
+  margin-bottom: 0;
+}
+
+.home-desktop .home-intro p {
+  width: 90%;
+  margin-top: 0;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: hsl(0, 0%, 3%);
+  animation: surgindo 0.8s ease-out forwards;
+}
+
+.home-desktop .home-login {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.home-desktop .login-card {
+  background-color: rgb(126, 248, 126);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   width: 70%;
-  margin: 0 auto;
-  margin-top: 8px;
+  max-width: 400px;
+}
+
+.home-desktop .login-card form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1.25rem;
 }
 
-.home-mobile form input {
+.home-desktop form input {
   width: 100%;
   height: 45px;
   border-radius: 15px;
   border: none;
-  background-color: rgb(126, 248, 126);
+  background-color: rgb(243, 247, 243);
   transition: background-color 0.2s ease;
 }
 
-.home-mobile form input:hover {
+.home-desktop form input:hover {
   background-color: #ebe7e7bb;
 }
 
-.home-mobile form input::placeholder {
+.home-desktop form input::placeholder {
   color: black;
   font-family: inherit;
 }
 
-.home-mobile .password-field {
+.home-desktop .password-field {
   position: relative;
 }
 
-.home-mobile .password-field svg {
+.home-desktop .password-field svg {
   font-size: 22px;
 }
 
-.home-mobile .password-field button {
+.home-desktop .password-field button {
   position: absolute;
   right: 15px;
   top: 50%;
@@ -68,44 +96,43 @@
   cursor: pointer;
 }
 
-.home-mobile form a {
+.home-desktop form a {
   color: inherit;
   text-decoration: none;
 }
 
-.home-mobile .form-options {
+.home-desktop .form-options {
   font-size: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.home-mobile .form-options a {
+.home-desktop .form-options label {
+  display: flex;
+  align-items: center;
+}
+
+.home-desktop .form-options a {
   transition:
     color 0,
     2s ease;
 }
 
-.home-mobile .form-options a:hover {
+.home-desktop .form-options a:hover {
   color: rgb(2, 121, 8);
 }
 
-.home-mobile .form-options label {
-  display: flex;
-  align-items: center;
-}
-
-.home-mobile .form-options input[type='checkbox'] {
+.home-desktop input[type='checkbox'] {
   width: 16px;
   height: 16px;
 }
 
-.home-mobile .login-button {
+.home-desktop .login-button {
   padding: 6px 15px;
   font-size: 15px;
   font-weight: bold;
   border-radius: 15px;
-  margin-top: 20px;
   background-color: rgb(4, 207, 4);
   border: none;
   font-family: inherit;
@@ -114,23 +141,22 @@
     background-color 0.2s ease;
 }
 
-.home-mobile .login-button:hover {
+.home-desktop .login-button:hover {
   background-color: rgb(2, 143, 2);
 }
 
-.home-mobile .login-button:active {
+.home-desktop .login-button:active {
   transform: scale(0.97);
   background-color: rgb(1, 99, 1);
 }
 
-.home-mobile .register-button {
+.home-desktop .register-button {
   display: inline-block;
   text-align: center;
   font-size: 15px;
   font-weight: bold;
   border-radius: 15px;
   padding: 6px 15px;
-  margin-top: 5px;
   cursor: default;
   background-color: rgb(4, 207, 4);
   border: none;
@@ -140,26 +166,23 @@
     background-color 0.2s ease;
 }
 
-.home-mobile .register-button:hover {
+.home-desktop .register-button:hover {
   background-color: rgb(2, 143, 2);
 }
 
-.home-mobile .register-button:active {
+.home-desktop .register-button:active {
   transform: scale(0.97);
   background-color: rgb(1, 99, 1);
 }
 
-.home-mobile .about-link {
+.home-desktop .about-link {
   color: inherit;
-  text-decoration: none;
   font-size: 14px;
   font-weight: bold;
   margin-top: auto;
-  transition:
-    color 0,
-    2s ease;
+  transition: color 0.2s ease;
 }
 
-.home-mobile .about-link:hover {
+.home-desktop .about-link:hover {
   color: rgb(2, 121, 8);
 }

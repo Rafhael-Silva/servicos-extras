@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import PageSelector from './PageSelector';
 import HomeMobile from '../../pages/Home/HomeMobile';
-import AboutPage from '../../pages/About/AboutPage';
+import HomeDesktop from '../../pages/Home/HomeDesktop';
+import AboutMobile from '../../pages/About/AboutMobile';
 import ProtectedRoute from './ProtectedRoute';
 import ProfilePage from '../../pages/Profile/ProfilePage';
 
@@ -32,9 +33,13 @@ function AppRouter() {
           element={
             <PageSelector
               mobilePage={<HomeMobile />}
-              desktopPage={<AboutPage />}
+              desktopPage={<HomeDesktop />}
             />
           }
+        />
+        <Route
+          path="/about"
+          element={<PageSelector mobilePage={<AboutMobile />} />}
         />
         {/* <Route
           path="/forgot-password"
