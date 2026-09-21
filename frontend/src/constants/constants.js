@@ -1,0 +1,15 @@
+const REFRESH_BEFORE_EXPIRATION = 2 * 60 * 1000;
+const INITIALIZING = 'initializing';
+const AUTHENTICATED = 'authenticated';
+const UNAUTHENTICATED = 'unauthenticated';
+const SESSION_ERROR = 'sessionError';
+const REMEMBERED_EMAIL_KEY = 'rememberedEmail';
+
+export {
+  REFRESH_BEFORE_EXPIRATION,
+  INITIALIZING,
+  AUTHENTICATED,
+  UNAUTHENTICATED,
+  SESSION_ERROR,
+  REMEMBERED_EMAIL_KEY,
+};

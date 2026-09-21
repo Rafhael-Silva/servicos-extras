@@ -1,0 +1,165 @@
+.home-mobile {
+  min-height: 100dvh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: rgb(162, 252, 159);
+}
+
+.home-mobile header {
+  width: 100%;
+  text-align: center;
+}
+
+.home-mobile header img {
+  max-width: 70%;
+  height: auto;
+}
+
+.home-mobile main {
+  min-height: 50dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-mobile form {
+  width: 70%;
+  margin: 0 auto;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.home-mobile form input {
+  width: 100%;
+  height: 45px;
+  border-radius: 15px;
+  border: none;
+  background-color: rgb(126, 248, 126);
+  transition: background-color 0.2s ease;
+}
+
+.home-mobile form input:hover {
+  background-color: #ebe7e7bb;
+}
+
+.home-mobile form input::placeholder {
+  color: black;
+  font-family: inherit;
+}
+
+.home-mobile .password-field {
+  position: relative;
+}
+
+.home-mobile .password-field svg {
+  font-size: 22px;
+}
+
+.home-mobile .password-field button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.home-mobile form a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-mobile .form-options {
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home-mobile .form-options a {
+  transition:
+    color 0,
+    2s ease;
+}
+
+.home-mobile .form-options a:hover {
+  color: rgb(2, 121, 8);
+}
+
+.home-mobile .form-options label {
+  display: flex;
+  align-items: center;
+}
+
+.home-mobile .form-options input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.home-mobile .login-button {
+  padding: 6px 15px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 15px;
+  margin-top: 20px;
+  background-color: rgb(4, 207, 4);
+  border: none;
+  font-family: inherit;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.home-mobile .login-button:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.home-mobile .login-button:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.home-mobile .register-button {
+  display: inline-block;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 6px 15px;
+  margin-top: 5px;
+  cursor: default;
+  background-color: rgb(4, 207, 4);
+  border: none;
+  font-family: inherit;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.home-mobile .register-button:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.home-mobile .register-button:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.home-mobile .about-link {
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+  transition:
+    color 0,
+    2s ease;
+}
+
+.home-mobile .about-link:hover {
+  color: rgb(2, 121, 8);
+}

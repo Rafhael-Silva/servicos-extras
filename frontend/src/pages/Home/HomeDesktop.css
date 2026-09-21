@@ -1,0 +1,188 @@
+.home-desktop {
+  min-height: 100dvh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: rgb(162, 252, 159);
+}
+
+.home-desktop main {
+  display: flex;
+  width: 100%;
+}
+
+.home-desktop .home-intro {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.home-desktop .home-intro img {
+  width: 50%;
+  margin-bottom: 0;
+}
+
+.home-desktop .home-intro p {
+  width: 90%;
+  margin-top: 0;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: hsl(0, 0%, 3%);
+  animation: surgindo 0.8s ease-out forwards;
+}
+
+.home-desktop .home-login {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.home-desktop .login-card {
+  background-color: rgb(126, 248, 126);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 70%;
+  max-width: 400px;
+}
+
+.home-desktop .login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.home-desktop form input {
+  width: 100%;
+  height: 45px;
+  border-radius: 15px;
+  border: none;
+  background-color: rgb(243, 247, 243);
+  transition: background-color 0.2s ease;
+}
+
+.home-desktop form input:hover {
+  background-color: #ebe7e7bb;
+}
+
+.home-desktop form input::placeholder {
+  color: black;
+  font-family: inherit;
+}
+
+.home-desktop .password-field {
+  position: relative;
+}
+
+.home-desktop .password-field svg {
+  font-size: 22px;
+}
+
+.home-desktop .password-field button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.home-desktop form a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-desktop .form-options {
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home-desktop .form-options label {
+  display: flex;
+  align-items: center;
+}
+
+.home-desktop .form-options a {
+  transition:
+    color 0,
+    2s ease;
+}
+
+.home-desktop .form-options a:hover {
+  color: rgb(2, 121, 8);
+}
+
+.home-desktop input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.home-desktop .login-button {
+  padding: 6px 15px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 15px;
+  background-color: rgb(4, 207, 4);
+  border: none;
+  font-family: inherit;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.home-desktop .login-button:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.home-desktop .login-button:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.home-desktop .register-button {
+  display: inline-block;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 6px 15px;
+  cursor: default;
+  background-color: rgb(4, 207, 4);
+  border: none;
+  font-family: inherit;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.home-desktop .register-button:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.home-desktop .register-button:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.home-desktop .about-link {
+  color: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: auto;
+  transition: color 0.2s ease;
+}
+
+.home-desktop .about-link:hover {
+  color: rgb(2, 121, 8);
+}

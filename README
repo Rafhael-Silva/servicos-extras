@@ -5,14 +5,34 @@ A solução é composta por microserviços independentes, responsáveis por aute
 
 ## Sobre o projeto
 
-Serviços Extras é uma plataforma que conecta candidatos e recrutadores para oportunidades de serviços extras. A plataforma permite o cadastro de usuários, gerenciamento de vagas, processos seletivos, avaliações, pagamentos e autenticação segura, utilizando uma arquitetura baseada em microserviços.
+Serviços Extras é uma plataforma que conecta candidatos e recrutadores para oportunidades de serviços extras.
+
+A plataforma contempla:
+
+* Cadastro e autenticação de usuários
+* Gerenciamento de perfis
+* Currículos
+* Publicação e gerenciamento de vagas
+* Processos seletivos
+* Avaliações
+* Pagamentos
+* Notificações
+* Controle de acesso e segurança
+* Comunicação entre serviços por meio de APIs REST
+
+A aplicação utiliza uma arquitetura baseada em microserviços, com responsabilidades separadas e banco de dados independente por serviço.
+
+# Backend
+
+O Backend é composto por microserviços independentes e um API Gateway responsável por centralizar a entrada das requisições externas.
 
 ## Microserviços
 
 ### auth-service (Concluído)
 
-- Autenticação, registro, login, controle de tokens, autorização básica.
-- Não armazena dados detalhados dos usuários.
+Responsável pela autenticação, registro, controle de tokens e autorização básica.
+
+O serviço não armazena dados detalhados dos perfis dos usuários.
 
 #### Funcionalidades implementadas:
 
@@ -23,7 +43,7 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Logout
 - Recuperação de senha
 - Alteração de senha
-- Consulta de perfil
+- Consulta dos dados básicos do usuário autenticado
 - Testes unitários
 - Testes de integração
 
@@ -36,8 +56,9 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 
 ### user-service (Concluído)
 
-- Gerencia dados e perfis dos usuários (candidatos e recrutadores).
-- Armazena informações pessoais e perfil do usuário.
+Responsável pelos dados e perfis dos usuários, incluindo candidatos e recrutadores.
+
+O serviço concentra as informações de perfil e funcionalidades relacionadas ao currículo.
 
 #### Funcionalidades implementadas:
 
@@ -45,6 +66,7 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Consulta de perfil
 - Criação e atualização de currículos pela plataforma
 - Upload de arquivos (Foto/Logo/Currículo)
+- Integração com armazenamento S3
 - Testes unitários
 - Testes de integração
 
@@ -57,45 +79,87 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 
 ### job-service (Não iniciado)
 
-- Criação e gerenciamento de vagas ou trabalhos disponíveis.
-- Não lida diretamente com dados pessoais.
+Responsável pela criação e gerenciamento das vagas disponíveis na plataforma, como a criação, atualização, gerenciamento e consultas de vagas.
+
+Não será responsável pelo armazenamento direto dos dados cadastrais dos usuários.
 
 ### selection-service (Não iniciado)
 
-- Gerencia processos seletivos, triagem, status da seleção e integração com avaliações técnicas.
-- Não armazena dados cadastrais.
+Responsável pelo gerenciamento dos processos seletivos, como as candidaturas, triagem, status da seleção, seleção de candidatos e integração com avaliações técnicas.
+
+Não será responsável pelo gerenciamento dos dados cadastrais dos usuários.
 
 ### evaluation-service (Não iniciado)
 
-- Avaliações técnicas, feedbacks.
-- Focado exclusivamente em avaliações.
+Responsável pelas avaliações técnicas e respectivos resultados, feedbacks e informações relacionadas ao processo de avaliação.
+
+O serviço será focado exclusivamente no domínio de avaliações.
 
 ### payment-service (Não iniciado)
 
-- Processa pagamentos e transações financeiras.
-- Não armazena dados pessoais.
+Responsável pelos pagamentos e transações financeiras da plataforma, como processamento de pagamentos, controle de transações, integração com provedores de pagamento, controle de valores da plataforma, processamento relacionado a pagamentos.
+
+### notification-service (Não iniciado)
+
+Responsável pelo gerenciamento e processamento das notificações da plataforma, como notificações para candidatos e recrutadores, eventos relacionados a candidaturas, eventos relacionados a processos seletivos, eventos relacionados a pagamentos e comunicação de alterações importantes na plataforma.
 
 ### gateway (Iniciado)
 
-- API Gateway responsável por rotear requisições para os microserviços.
-- Controla autenticação básica, rate limiting e logs.
-- Não contém lógica de negócio.
+API Gateway responsável por centralizar a entrada das requisições do Frontend e realizar o roteamento para os respectivos microserviços.
 
----
+O Gateway não contém lógica de negócio dos serviços.
 
-## Arquitetura
+#### Funcionalidades implementadas
 
-- Arquitetura baseada em microserviços.
-- APIs REST.
-- Comunicação entre serviços via HTTP.
-- Banco de dados independente por microserviço.
+- Estrutura inicial do API Gateway
+- Roteamento para auth-service
+- Roteamento para user-service
+- Configuração de CORS
+- Configuração de segurança com Helmet
+- Rate limiting
+- Logs
+- Tratamento centralizado de erros
+- Testes dos roteamentos implementados
+
+# Frontend (Iniciado)
+
+O Frontend está sendo desenvolvido utilizando **React + Vite**.
+
+A aplicação seguirá uma arquitetura organizada por domínios e funcionalidades, mantendo o Frontend desacoplado da implementação interna dos microserviços.
+
+
+## Tecnologias e configuração inicial
+
+* React
+* React DOM
+* Vite
+* React Compiler
+* ESLint
+* JavaScript
+* Vite HMR para desenvolvimento
+
+# Arquitetura
+
+A aplicação utiliza uma arquitetura baseada em microserviços.
+
+- Arquitetura baseada em microserviços independentes
+- APIs REST
+- API Gateway
+- Comunicação entre serviços via HTTP
+- Banco de dados independente por microserviço
+- Separação de responsabilidades
+- Frontend desacoplado dos microserviços
 
 ## Tratamento de erros
+
+O Backend utiliza mecanismos centralizados para tratamento de erros.
 
 - Tratamento centralizado de erros por meio do errorHandler.
 - Gerenciamento de erros em operações assíncronas por meio do asyncHandler.
 
-## Tecnologias utilizadas
+# Tecnologias 
+
+## Backend
 
 ### Linguagem e framework
 
@@ -123,7 +187,6 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 
 ### HTTP e integração entre serviços
 
-- Axios (requisições HTTP entre microserviços)
 - http-proxy-middleware (proxy de requisições, útil no gateway)
 
 ### Serviços externos
@@ -150,5 +213,26 @@ Serviços Extras é uma plataforma que conecta candidatos e recrutadores para op
 - Jest (testes unitários e de integração)
 - Supertest (testes de rotas HTTP)
 - Nodemon (desenvolvimento com auto-reload)
+
+## Frontend
+
+### Interface
+
+* React
+* React DOM
+* JavaScript
+* JSX
+
+### Desenvolvimento e build
+
+* Vite
+* Vite HMR
+* React Compiler
+
+### Qualidade de código
+
+* ESLint
+* eslint-plugin-react-hooks
+* eslint-plugin-react-refresh
 
 ---

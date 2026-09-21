@@ -1,0 +1,97 @@
+.about-mobile {
+  min-height: 100dvh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: rgb(162, 252, 159);
+}
+
+.about-mobile header {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-mobile header img {
+  width: 60%;
+}
+
+.about-mobile main {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.about-mobile .main-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  gap: 1.25rem;
+  width: 90%;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.about-mobile .title {
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(55, 243, 55, 0.897);
+  border-radius: 12px;
+  width: 90%;
+  height: 50px;
+  padding: 0.6rem 1.2rem;
+}
+
+.about-mobile .icon {
+  display: flex;
+}
+
+.about-mobile .main-box p {
+  font-size: 13px;
+  text-align: justify;
+}
+
+.about-mobile .buttons {
+  display: flex;
+  width: 90%;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.about-mobile .buttons a {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: rgb(4, 207, 4);
+  border-radius: 15px;
+  padding: 6px 15px;
+  cursor: default;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.about-mobile .buttons a:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.about-mobile .buttons a:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.about-mobile .buttons a {
+  color: inherit;
+  text-decoration: none;
+}
