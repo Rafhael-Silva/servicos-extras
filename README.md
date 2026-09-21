@@ -127,6 +127,15 @@ O Frontend está sendo desenvolvido utilizando **React + Vite**.
 
 A aplicação seguirá uma arquitetura organizada por domínios e funcionalidades, mantendo o Frontend desacoplado da implementação interna dos microserviços.
 
+## Screenshots
+
+### Home
+
+#### Desktop
+![Home Desktop](docs/screenshots/HomeDesktop.png)
+
+#### Mobile
+![Home Mobile](docs/screenshots/HomeMobile.png)
 
 ## Tecnologias e configuração inicial
 
