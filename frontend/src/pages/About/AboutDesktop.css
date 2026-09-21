@@ -1,0 +1,196 @@
+.about-desktop {
+  min-height: 100dvh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: rgb(162, 252, 159);
+}
+
+.about-desktop header {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-desktop header img {
+  width: 30%;
+}
+
+.about-desktop main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.about-desktop .introduction-box {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  gap: 2rem;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.about-desktop .introduction-box p {
+  text-align: justify;
+}
+
+.about-desktop .icon {
+  display: flex;
+}
+
+.about-desktop .title-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(55, 243, 55, 0.897);
+  border-radius: 12px;
+  width: 90%;
+  height: 50px;
+  padding: 0.6rem 1.2rem;
+}
+
+.about-desktop .users-container {
+  display: flex;
+  width: 90%;
+  gap: 1rem;
+}
+
+.about-desktop .users-box {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  padding: 1.5rem 1rem;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  gap: 2rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.about-desktop .title-users {
+  display: flex;
+  font-size: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(55, 243, 55, 0.897);
+  border-radius: 12px;
+  width: 90%;
+  height: 50px;
+  padding: 0.6rem 1.2rem;
+}
+
+.about-desktop .users-box p {
+  text-align: justify;
+}
+
+.about-desktop .benefit-container {
+  display: flex;
+  width: 90%;
+}
+
+.about-desktop .benefit-box {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  gap: 2rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.about-desktop .benefit-box p {
+  text-align: justify;
+}
+
+.about-desktop .title-benefit {
+  display: flex;
+  font-size: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(55, 243, 55, 0.897);
+  border-radius: 12px;
+  width: 90%;
+  height: 50px;
+  padding: 0.6rem 1.2rem;
+}
+
+.about-desktop .call-box {
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  gap: 2rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.about-desktop .call-box p {
+  text-align: justify;
+}
+
+.about-desktop .title-call {
+  display: flex;
+  font-size: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(55, 243, 55, 0.897);
+  border-radius: 12px;
+  width: 90%;
+  height: 50px;
+  padding: 0.6rem 1.2rem;
+}
+
+.about-desktop .buttons {
+  display: flex;
+  width: 90%;
+  justify-content: center;
+  gap: 16rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.about-desktop .buttons a {
+  flex: 0 1 250px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: rgb(4, 207, 4);
+  border-radius: 15px;
+  padding: 6px 15px;
+  cursor: default;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
+}
+
+.about-desktop .buttons a:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.about-desktop .buttons a:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.about-desktop .buttons a {
+  color: inherit;
+  text-decoration: none;
+}

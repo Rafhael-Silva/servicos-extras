@@ -3,6 +3,7 @@ import PageSelector from './PageSelector';
 import HomeMobile from '../../pages/Home/HomeMobile';
 import HomeDesktop from '../../pages/Home/HomeDesktop';
 import AboutMobile from '../../pages/About/AboutMobile';
+import AboutDesktop from '../../pages/About/AboutDesktop';
 import ProtectedRoute from './ProtectedRoute';
 import ProfilePage from '../../pages/Profile/ProfilePage';
 
@@ -39,7 +40,12 @@ function AppRouter() {
         />
         <Route
           path="/about"
-          element={<PageSelector mobilePage={<AboutMobile />} />}
+          element={
+            <PageSelector
+              mobilePage={<AboutMobile />}
+              desktopPage={<AboutDesktop />}
+            />
+          }
         />
         {/* <Route
           path="/forgot-password"
