@@ -1,0 +1,176 @@
+.register-mobile {
+  min-height: 100dvh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: rgb(162, 252, 159);
+}
+
+.register-mobile header {
+  width: 100%;
+  text-align: center;
+}
+
+.register-mobile header img {
+  max-width: 60%;
+  height: auto;
+}
+
+.register-mobile main {
+  min-height: 50dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem 2rem;
+  box-sizing: border-box;
+}
+
+.register-mobile h1 {
+  font-size: 18px;
+}
+
+.register-mobile form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgb(126, 248, 126);
+  border-radius: 12px;
+  padding: 1.5rem;
+  gap: 1rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.register-mobile label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 12px;
+}
+
+.register-mobile label select {
+  width: 100%;
+  height: 35px;
+  border: none;
+  border-radius: 12px;
+}
+
+.register-mobile label input {
+  width: 100%;
+  height: 35px;
+  border-radius: 12px;
+  border: none;
+  background-color: rgb(243, 247, 243);
+  transition: background-color 0.2s ease;
+}
+
+.register-mobile form input:hover {
+  background-color: #ebe7e7bb;
+}
+
+.register-mobile form input::placeholder,
+.register-mobile form .password-field input::placeholder {
+  color: black !important;
+  opacity: 0.4 !important;
+  font-family: inherit;
+}
+
+.register-mobile form input[type='date'] {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.register-mobile form input[type='date']:focus,
+.register-mobile form input[type='date']:valid {
+  color: black;
+}
+
+.register-mobile form select:invalid {
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: normal;
+}
+
+.register-mobile form select option {
+  color: rgb(0, 0, 0) !important;
+  font-weight: normal;
+}
+
+.register-mobile form select option[value=''] {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.register-mobile .password-field {
+  position: relative;
+}
+
+.register-mobile .password-field svg {
+  font-size: 22px;
+}
+
+.register-mobile .password-field button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.register-mobile .checkbox label {
+  margin-top: 1rem;
+  font-size: 12px;
+  flex-direction: row;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+
+.register-mobile .checkbox input {
+  height: 16px;
+  width: 16px;
+}
+
+.register-mobile .buttons {
+  display: flex;
+  width: 90%;
+  gap: 1rem;
+  margin: 1rem auto;
+}
+
+.register-mobile .buttons a,
+.register-mobile .buttons button {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  background-color: rgb(4, 207, 4);
+  border-radius: 15px;
+  padding: 6px 15px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.register-mobile .buttons button {
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.register-mobile .buttons a:hover,
+.register-mobile .buttons button:hover {
+  background-color: rgb(2, 143, 2);
+}
+
+.register-mobile .buttons a:active,
+.register-mobile .buttons button:active {
+  transform: scale(0.97);
+  background-color: rgb(1, 99, 1);
+}
+
+.register-mobile .field-error {
+  color: #d32f2f;
+  font-size: 11px;
+}

@@ -1,0 +1,55 @@
+name: Backend CI
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - "backend/**"
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+
+jobs:
+  auth-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install auth-service dependencies
+        working-directory: backend/auth-service
+        run: npm ci
+
+      - name: Run auth-service tests
+        working-directory: backend/auth-service
+        run: npm test
+
+  user-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install user-service dependencies
+        working-directory: backend/user-service
+        run: npm ci
+
+      - name: Run user-service tests
+        working-directory: backend/user-service
+        run: npm test
