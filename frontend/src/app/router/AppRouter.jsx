@@ -4,6 +4,7 @@ import HomeMobile from '../../pages/Home/HomeMobile';
 import HomeDesktop from '../../pages/Home/HomeDesktop';
 import AboutMobile from '../../pages/About/AboutMobile';
 import AboutDesktop from '../../pages/About/AboutDesktop';
+import RegisterMobile from '../../pages/Register/RegisterMobile';
 import ProtectedRoute from './ProtectedRoute';
 import ProfilePage from '../../pages/Profile/ProfilePage';
 
@@ -11,16 +12,11 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/*<Route
-          path="/register"
-          element={
-            <PageSelector
-              mobilePage={<RegisterMobile />}
-              desktopPage={<RegisterDesktop />}
-            />
-          }
-        />
         <Route
+          path="/register"
+          element={<PageSelector mobilePage={<RegisterMobile />} />}
+        />
+        {/* <Route
           path="/verify-code"
           element={
             <PageSelector
